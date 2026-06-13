@@ -1,4 +1,5 @@
-const CACHE_NAME = 'local-notes-v1';
+// 更新index.html代码时，顺手把它改成 v2、v3、v4...
+const CACHE_NAME = 'local-notes-v2';
 const ASSETS = [
   './',
   './index.html',
