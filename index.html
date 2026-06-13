@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1005,19 +1006,47 @@
         }
          
         function handleLocalImageUpload(event) {
-               const files = event.target.files; if (!files || files.length === 0) return;
-               const editor = document.getElementById('note-editor-richtext'); if (editor) editor.focus(); 
-               Array.from(files).forEach(file => {
-                   if (!file.type.startsWith('image/')) { return; }
-                   const reader = new FileReader();
-                   reader.onload = function(e) {
-                        const base64Image = e.target.result;
-                        const imgHTML = `<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${base64Image}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
+            const files = event.target.files; if (!files || files.length === 0) return;
+            const editor = document.getElementById('note-editor-richtext'); if (editor) editor.focus(); 
+            
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) { return; }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // 💡 改动 1：强制最大宽度由 800px 提升为 1200px
+                        const MAX_WIDTH = 1200; 
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // 💡 改动 2：新增这两行，给透明图片（比如PNG图标）垫一层纯白底色，防止变黑框
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // 💡 改动 3：画质保留从 0.7 (70%) 提升到 0.9 (90%)，拒绝模糊毛边
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+
+                        const imgHTML = `<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${compressedBase64}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
                         execCmd('insertHTML', imgHTML);
-                   };
-                   reader.readAsDataURL(file);
-               });
-               event.target.value = '';
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
         }
 
         if ('serviceWorker' in navigator) {
