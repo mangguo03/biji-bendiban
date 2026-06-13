@@ -1014,11 +1014,12 @@
                 reader.onload = function(e) {
                     const img = new Image();
                     img.onload = function() {
-                        // 💡 改动 1：强制最大宽度由 800px 提升为 1200px
+                        // 💡 提升1：最大宽度从 800 提高到 1200，保证截图上的细小文字依然清晰锐利
                         const MAX_WIDTH = 1200; 
                         let width = img.width;
                         let height = img.height;
 
+                        // 按比例缩小尺寸
                         if (width > MAX_WIDTH) {
                             height = Math.round((height * MAX_WIDTH) / width);
                             width = MAX_WIDTH;
@@ -1029,13 +1030,13 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         
-                        // 💡 改动 2：新增这两行，给透明图片（比如PNG图标）垫一层纯白底色，防止变黑框
+                        // 修复可能出现的透明PNG变黑底的问题：绘制前先铺一层白底
                         ctx.fillStyle = "#ffffff";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        // 💡 改动 3：画质保留从 0.7 (70%) 提升到 0.9 (90%)，拒绝模糊毛边
+                        // 💡 提升2：画质压缩率从 0.7 提升到 0.9，保留 90% 的原图细节，拒绝模糊毛边
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.9);
 
                         const imgHTML = `<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${compressedBase64}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
@@ -1047,7 +1048,6 @@
             });
             event.target.value = '';
         }
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
         }
