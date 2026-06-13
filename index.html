@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>本地轻笔记</title>
+    <link rel="manifest" href="manifest.json">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,11 +17,23 @@
     <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+    
     <style>
         body { font-size: 16px; }
         .md-preview { font-size: 16px; }
         .panel-large-text { font-size: 12px !important; font-weight: 800 !important; }
         .sync-btn-font { font-size: 12px !important; font-weight: 900 !important; }
+
+        /* 💡 移动端拖拽核心防御：禁用原生长按弹出菜单和文字选中，防止阻断拖拽 */
+        [draggable="true"] {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: element; /* 兼容部分老旧苹果系统 */
+            touch-action: pan-y; /* 💡 终极绝招：允许上下滑动列表，但绝不干扰手指长按！ */
+        }
         
         .md-preview h1, .md-preview h1 *, .md-preview h1 font { font-size: 2.6rem !important; font-weight: 800 !important; line-height: 1.3 !important; }
         .md-preview h2, .md-preview h2 *, .md-preview h2 font { font-size: 2.1rem !important; font-weight: 700 !important; line-height: 1.3 !important; }
@@ -381,9 +394,6 @@
             if (localStorage.getItem('app-theme') === 'system' || !localStorage.getItem('app-theme')) applyTheme('system');
         });
 
-        // ==========================================
-        // 💡 纯本地数据引擎
-        // ==========================================
         let notes = [];
         let trashBin = [];
         let isLocalDataLoaded = false;
@@ -434,11 +444,20 @@
             applyTheme(localStorage.getItem('app-theme') || 'system');
             updateLanguageUI();
             
-            // 💡 直接加载本地数据
+            // 💡 激活移动端触摸拖拽引擎
+            MobileDragDrop.polyfill({
+                holdToDrag: 300, 
+                forceApply: true // 💡 强制接管底层系统拖拽权限！
+            });
+            window.addEventListener('touchmove', function(e) {
+                if (document.body.classList.contains('dnd-poly-active') && e.cancelable) {
+                    e.preventDefault(); 
+                }
+            }, {passive: false});
+
             loadLocalData();
         });
         
-        // 💡 修改为加载本地浏览器缓存
         function loadLocalData() {
             if (typeof marked !== 'undefined') marked.use({ breaks: true, gfm: true });
             try {
@@ -471,7 +490,6 @@
             }
         }
         
-        // 💡 修改为将数据写入本地浏览器缓存
         function saveLocalData() {
             if(!isLocalDataLoaded) return; 
             const allData = { notes, categories, categoryColors, trashBin, folderTreeRelations, leftExpandedFolders };
@@ -549,20 +567,25 @@
                         </div>
                     `;
 
+                    // 💡 核心修复：全面抛弃 .ondrag 简写，全部改用标准的 .addEventListener()
                     cell.setAttribute('draggable', 'true');
-                    cell.ondragstart = (e) => {
+                    
+                    cell.addEventListener('dragstart', (e) => {
                         e.dataTransfer.effectAllowed = 'move';
                         e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'folder', id: cat.id }));
                         e.dataTransfer.setData('text/folder-id', cat.id);
                         setTimeout(() => cell.classList.add('opacity-40'), 0);
-                    };
-                    cell.ondragend = () => {
+                    });
+                    
+                    cell.addEventListener('dragend', () => {
                         cell.classList.remove('opacity-40');
                         document.querySelectorAll('.folder-drop-target').forEach(el => el.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed'));
-                    };
-                    cell.ondragover = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; cell.classList.add('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed'); };
-                    cell.ondragleave = () => { cell.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed'); };
-                    cell.ondrop = (e) => {
+                    });
+                    
+                    cell.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; cell.classList.add('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed'); });
+                    cell.addEventListener('dragleave', () => { cell.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed'); });
+                    
+                    cell.addEventListener('drop', (e) => {
                         e.preventDefault(); cell.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed');
                         let dropData = { type: null, id: null };
                         try { const plainText = e.dataTransfer.getData('text/plain'); if (plainText) dropData = JSON.parse(plainText); } catch (err) {}
@@ -587,23 +610,16 @@
                                 if (sourceCat) { sourceCat.parentId = cat.id; saveLocalData(); refreshAllViews(); }
                             } else { alert("🚨 不能将父级目录移动到自身子目录下！"); }
                         }
-                    };
+                    });
+
                     cell.onclick = (e) => {
-                        // 💡 如果点击的是“三个点”菜单按钮，就弹出重命名/删除的折叠面板
                         if (e.target.closest('.folder-more-btn')) {
-                            e.stopPropagation(); // 阻止触发文件夹的选中高亮
-                            rightClickedCategoryId = cat.id;
-                            const menu = document.getElementById('custom-context-menu');
-                            menu.classList.remove('hidden');
-                            // 兼容手机触摸和电脑鼠标的坐标
+                            e.stopPropagation(); rightClickedCategoryId = cat.id;
+                            const menu = document.getElementById('custom-context-menu'); menu.classList.remove('hidden');
                             const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 50;
                             const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 50;
-                            menu.style.left = clientX + 'px';
-                            menu.style.top = clientY + 'px';
-                            return;
+                            menu.style.left = clientX + 'px'; menu.style.top = clientY + 'px'; return;
                         }
-
-                        // 原来的折叠和高亮逻辑保持不变
                         if (e.target.closest('.fa-caret-down') || e.target.closest('.fa-caret-right')) {
                             leftExpandedFolders[cat.id] = !isExpanded; saveLocalData(); refreshAllViews();
                         } else {
@@ -658,16 +674,20 @@
                     </div>
                 `;
 
+                // 💡 核心修复：同样全部改用标准的 .addEventListener()
                 box.setAttribute('draggable', 'true');
-                box.ondragstart = (e) => {
+                
+                box.addEventListener('dragstart', (e) => {
                     draggedNoteId = note.id; e.dataTransfer.effectAllowed = 'move';
                     e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'note', id: note.id }));
                     setTimeout(() => box.classList.add('opacity-40', 'scale-95'), 0);
-                };
-                box.ondragend = () => { draggedNoteId = null; box.classList.remove('opacity-40', 'scale-95'); document.querySelectorAll('.folder-drop-target').forEach(el => el.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed')); };
-                box.ondragover = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (draggedNoteId && draggedNoteId !== note.id) box.classList.add('border-t-2', 'border-blue-500'); };
-                box.ondragleave = () => { box.classList.remove('border-t-2', 'border-blue-500'); };
-                box.ondrop = (e) => {
+                });
+                
+                box.addEventListener('dragend', () => { draggedNoteId = null; box.classList.remove('opacity-40', 'scale-95'); document.querySelectorAll('.folder-drop-target').forEach(el => el.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-blue-400', 'border-dashed')); });
+                box.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (draggedNoteId && draggedNoteId !== note.id) box.classList.add('border-t-2', 'border-blue-500'); });
+                box.addEventListener('dragleave', () => { box.classList.remove('border-t-2', 'border-blue-500'); });
+                
+                box.addEventListener('drop', (e) => {
                     e.preventDefault(); box.classList.remove('border-t-2', 'border-blue-500');
                     let dropNoteId = draggedNoteId;
                     try { const plainText = e.dataTransfer.getData('text/plain'); if (plainText) { const data = JSON.parse(plainText); if (data.type === 'note') dropNoteId = data.id; } } catch(err) {}
@@ -679,7 +699,7 @@
                             notes.splice(newToIdx, 0, movedItem); saveLocalData(); renderLeftNotesView();
                         }
                     }
-                };
+                });
                 gridWrapper.appendChild(box);
             });
             container.appendChild(gridWrapper);
@@ -1032,12 +1052,10 @@
                 reader.onload = function(e) {
                     const img = new Image();
                     img.onload = function() {
-                        // 💡 提升1：最大宽度从 800 提高到 1200，保证截图上的细小文字依然清晰锐利
                         const MAX_WIDTH = 1200; 
                         let width = img.width;
                         let height = img.height;
 
-                        // 按比例缩小尺寸
                         if (width > MAX_WIDTH) {
                             height = Math.round((height * MAX_WIDTH) / width);
                             width = MAX_WIDTH;
@@ -1048,13 +1066,11 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         
-                        // 修复可能出现的透明PNG变黑底的问题：绘制前先铺一层白底
                         ctx.fillStyle = "#ffffff";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        // 💡 提升2：画质压缩率从 0.7 提升到 0.9，保留 90% 的原图细节，拒绝模糊毛边
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.9);
 
                         const imgHTML = `<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${compressedBase64}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
@@ -1066,6 +1082,7 @@
             });
             event.target.value = '';
         }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
         }
