@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>云笔记</title>
+    <title>本地轻笔记</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -45,14 +45,12 @@
         .md-preview a { color: #2563eb; text-decoration: underline; font-weight: bold; cursor: pointer; transition: all 0.2; }
         .md-preview a:hover { color: #1e40af; text-decoration-style: dashed; }
 
-        /* ==================== 核心恢复：图片外壳及红绿锁逻辑 ==================== */
         .custom-img-wrapper { position: relative; display: inline-block; margin: 14px 0; vertical-align: bottom; max-width: 100%; }
         .custom-img-wrapper img { max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: block; transition: outline 0.2s, box-shadow 0.2s; }
         .custom-img-wrapper:not(.locked) img { outline: 3px dashed #eab308; outline-offset: 2px; cursor: nwse-resize; }
         .custom-img-wrapper.locked img { user-select: none; -webkit-user-drag: none; outline: none !important; box-shadow: none !important; }
         .custom-img-wrapper.locked::after { content: ''; position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 10; cursor: grab; }
         .custom-img-wrapper.locked:active::after { cursor: grabbing; }
-        /* 💡 调整后：变得更小巧精致的迷你锁 */
         .img-lock-btn { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; background-color: #22c55e; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 10px; transition: all 0.2s; }
         .img-lock-btn.locked { background-color: #ef4444; }
 
@@ -73,21 +71,10 @@
 </head>
 <body class="bg-slate-900 font-sans h-screen flex flex-col overflow-hidden text-slate-800 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
     
-    <div id="auth-overlay" class="fixed inset-0 bg-slate-900 z-[9999] flex items-center justify-center transition-opacity" style="-webkit-app-region: no-drag;">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-96 flex flex-col gap-4">
-            <h2 class="text-2xl font-black mb-2 text-center text-slate-800" id="auth-title">登入云端工作台</h2>
-            <div id="auth-error" class="hidden bg-red-100 text-red-600 p-2 rounded text-sm font-bold text-center"></div>
-            <input type="text" id="auth-username" placeholder="请输入账号" class="w-full border-2 border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold text-slate-700">
-            <input type="password" id="auth-password" placeholder="请输入密码" class="w-full border-2 border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold text-slate-700">
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow-md mt-2">登入</button>
-            <div class="text-center text-sm font-bold text-slate-500 cursor-pointer hover:text-blue-600 mt-2" onclick="toggleAuthMode()" id="auth-toggle">没有账号？点击注册新账号</div>
-        </div>
-    </div>
-
     <header id="app-header" class="bg-slate-800 text-slate-200 py-0.5 px-3 flex items-center select-none border-b border-slate-700 relative z-[70]" style="-webkit-app-region: drag;">
         <div class="flex items-center gap-1.5 pointer-events-none" style="-webkit-app-region: no-drag;">
-            <i class="fa-solid fa-pen-to-square text-yellow-400 text-sm"></i>
-            <span class="font-black tracking-wide text-sm bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300" data-i18n="app-title">云笔记</span>
+            <i class="fa-solid fa-pen-to-square text-emerald-400 text-sm"></i>
+            <span class="font-black tracking-wide text-sm bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300" data-i18n="app-title">本地轻笔记</span>
         </div>
     </header>
 
@@ -100,7 +87,7 @@
         <aside id="left-panel" class="bg-slate-50 dark:bg-slate-800 dark:border-slate-700 flex flex-col flex-shrink-0 overflow-hidden border-r border-slate-200 panel-large-text transition-all relative z-50 h-full" style="width: 170px; min-width: 130px; max-width: 480px;">
             <div id="all-docs-container" class="py-1.5 px-[9px] border-b border-slate-200 dark:border-slate-700 bg-slate-100/40 dark:bg-slate-800 flex-shrink-0"></div>
             <div class="px-3.5 py-2 bg-slate-200/60 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0 select-none border-b border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800 transition-colors" onclick="toggleFolderSection()">
-                <span class="sync-btn-font text-yellow-600 dark:text-yellow-400 font-black flex items-center gap-1.5">
+                <span class="sync-btn-font text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1.5">
                     <i id="folder-section-icon" class="fa-solid fa-chevron-down text-[11px] transition-transform duration-200"></i>
                     <span data-i18n="label-folder">文件夹</span>
                 </span>
@@ -113,7 +100,7 @@
             <div id="category-tree-container" class="p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100/40 dark:bg-slate-800/40 flex-shrink-0 max-h-[30vh] overflow-y-auto space-y-1"></div>
             
             <div class="px-3.5 py-2 bg-slate-200/60 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0 select-none border-b border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800 transition-colors" onclick="toggleContentSection()">
-                <span class="sync-btn-font text-yellow-600 dark:text-yellow-400 font-black flex items-center gap-1.5">
+                <span class="sync-btn-font text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1.5">
                     <i id="content-section-icon" class="fa-solid fa-chevron-down text-[11px] transition-transform duration-200"></i>
                     <span data-i18n="label-content">笔记集</span>
                 </span>
@@ -182,15 +169,16 @@
                             <i class="fa-solid fa-folder text-blue-500 text-[11px]"></i>
                             <select id="note-category-select" onchange="changeNoteCategory(this.value)" class="text-[11px] font-black text-blue-700 dark:text-blue-300 bg-transparent outline-none cursor-pointer w-[60px] truncate"></select>
                         </div>
-                        <button onclick="toggleRightPanel()" title="历史记录" class="bg-red-600 hover:bg-red-700 text-white font-black px-1.5 py-0.5 rounded text-[11px] transition-all shadow-sm flex items-center justify-center border border-red-700 whitespace-nowrap flex-shrink-0">
+                        
+                        <button onclick="toggleRightPanel()" title="历史记录" class="bg-red-600 hover:bg-red-700 text-white font-black px-2 py-1 rounded text-[11px] transition-all shadow-sm flex items-center justify-center border border-red-700 whitespace-nowrap flex-shrink-0">
                             <i class="fa-solid fa-clock-rotate-left pointer-events-none"></i>
                         </button>
                         
                         <div class="relative flex-shrink-0">
-                            <button onclick="toggleSettingsMenu(event)" title="系统设置" class="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-black px-1.5 py-1 rounded text-[11px] transition-all shadow-sm flex items-center justify-center border border-slate-700 whitespace-nowrap">
+                            <button onclick="toggleSettingsMenu(event)" title="系统设置" class="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-black px-2 py-1 rounded text-[11px] transition-all shadow-sm flex items-center justify-center border border-slate-700 whitespace-nowrap">
                                 <i class="fa-solid fa-gear pointer-events-none"></i>
                             </button>
-                            <div id="settings-dropdown" class="hidden fixed mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[9999] flex flex-col py-1">
+                            <div id="settings-dropdown" class="hidden fixed mt-2 w-40 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[9999] flex flex-col py-1">
                                 <button onclick="toggleLanguage(); document.getElementById('settings-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
                                     <i class="fa-solid fa-language text-lg text-blue-500 w-4 text-center"></i> <span data-i18n="lang-toggle">切换语言 / EN</span>
                                 </button>
@@ -205,14 +193,7 @@
                                 <button onclick="setTheme('system'); document.getElementById('settings-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
                                     <i class="fa-solid fa-desktop text-slate-400 w-4 text-center"></i> <span data-i18n="theme-sys">系统</span>
                                 </button>
-                                <div class="h-px bg-slate-100 dark:bg-slate-700 w-full my-1"></div>
-                                <button onclick="logout()" class="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
-                                    <i class="fa-solid fa-right-from-bracket text-slate-400 w-4 text-center"></i> <span data-i18n="nav-logout">退出登录</span>
-                                </button>
-                                <button onclick="deleteAccount()" class="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-3 font-bold transition-colors">
-                                    <i class="fa-solid fa-user-xmark w-4 text-center"></i> <span data-i18n="nav-delete">注销账号</span>
-                                </button>
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -294,18 +275,14 @@
     <script>
         const dict = {
             zh: {
-                'nav-logout': '退出登录', 'nav-delete': '注销账号', 'nav-history': '历史',
                 'theme-title': '主题模式', 'theme-light': '浅色模式', 'theme-dark': '深色模式', 'theme-sys': '跟随系统',
-                'lang-toggle': '切换语言 / EN',
-                'nav-sidebar': '侧栏', 'app-title': '云笔记',
+                'lang-toggle': '切换语言 / EN', 'app-title': '本地轻笔记',
                 'btn-new-note': '新笔记', 'btn-new-folder': '新分类',
-                'btn-import-export': '导入与导出', 'label-folder': '文件夹',
-                'label-content': '笔记集', 'label-editor': '编辑栏',
-                'label-category': '归属地:', 'trash-title': '回收站',
-                'btn-list': '列表', 'btn-grid': '图表',
+                'label-folder': '文件夹', 'label-content': '笔记集', 'label-editor': '编辑栏',
+                'trash-title': '回收站', 'btn-list': '列表', 'btn-grid': '图表',
                 'all-docs': '全笔记展示', 'no-data': '无数据', 'trash-empty': '回收站空空如也',
                 'untitled': '无标题', 'original-folder': '原位置:',
-                'fmt-size': '字号', 'sz-1': '1号 (10px)', 'sz-2': '2号 (13px)', 'sz-3': '3号 (16px 正常)', 'sz-4': '4号 (18px)', 'sz-5': '5号 (24px)', 'sz-6': '6号 (32px)', 'sz-7': '7号 (48px)',
+                'fmt-size': '字号', 'sz-1': '1号 (10px)', 'sz-2': '2号 (13px)', 'sz-3': '3号 (16px)', 'sz-4': '4号 (18px)', 'sz-5': '5号 (24px)', 'sz-6': '6号 (32px)', 'sz-7': '7号 (48px)',
                 'fmt-heading': '标题', 'h1': '一级标题', 'h2': '二级标题', 'h3': '三级标题', 'p': '正文',
                 'color-white': '白', 'color-red': '红', 'color-yellow': '黄', 'color-blue': '蓝', 'color-green': '绿', 'color-black': '黑',
                 'fmt-img': '图', 'btn-recover': '恢复', 'btn-empty': '清空', 'ctx-rename': '重命名分类', 'ctx-delete': '安全删除分类',
@@ -313,18 +290,14 @@
                 'btn-import-folder': '导入文件夹', 'btn-export-folder': '导出文件夹'
             },
             en: {
-                'nav-logout': 'Logout', 'nav-delete': 'Delete Account', 'nav-history': 'History',
                 'theme-title': 'Theme Mode', 'theme-light': 'Light Mode', 'theme-dark': 'Dark Mode', 'theme-sys': 'System Default',
-                'lang-toggle': 'Switch Lang / 中文',
-                'nav-sidebar': 'Sidebar', 'app-title': 'Cloud Note',
+                'lang-toggle': 'Switch Lang / 中文', 'app-title': 'Local Note',
                 'btn-new-note': 'New Note', 'btn-new-folder': 'New Folder',
-                'btn-import-export': 'Import/Export', 'label-folder': 'Folders',
-                'label-content': 'Content', 'label-editor': 'Editor',
-                'label-category': 'Category:', 'trash-title': 'Trash',
-                'btn-list': 'List', 'btn-grid': 'Grid',
+                'label-folder': 'Folders', 'label-content': 'Content', 'label-editor': 'Editor',
+                'trash-title': 'Trash', 'btn-list': 'List', 'btn-grid': 'Grid',
                 'all-docs': 'All Documents', 'no-data': 'No Data', 'trash-empty': 'Trash is empty',
                 'untitled': 'Untitled', 'original-folder': 'From:',
-                'fmt-size': 'Size', 'sz-1': 'Sz 1 (10px)', 'sz-2': 'Sz 2 (13px)', 'sz-3': 'Sz 3 (16px Normal)', 'sz-4': 'Sz 4 (18px)', 'sz-5': 'Sz 5 (24px)', 'sz-6': 'Sz 6 (32px)', 'sz-7': 'Sz 7 (48px)',
+                'fmt-size': 'Size', 'sz-1': 'Sz 1 (10px)', 'sz-2': 'Sz 2 (13px)', 'sz-3': 'Sz 3 (16px)', 'sz-4': 'Sz 4 (18px)', 'sz-5': 'Sz 5 (24px)', 'sz-6': 'Sz 6 (32px)', 'sz-7': 'Sz 7 (48px)',
                 'fmt-heading': 'Heading', 'h1': 'Heading 1', 'h2': 'Heading 2', 'h3': 'Heading 3', 'p': 'Normal Text',
                 'color-white': 'W', 'color-red': 'R', 'color-yellow': 'Y', 'color-blue': 'B', 'color-green': 'G', 'color-black': 'Bk',
                 'fmt-img': 'Img', 'btn-recover': 'Restore', 'btn-empty': 'Empty', 'ctx-rename': 'Rename', 'ctx-delete': 'Delete safely',
@@ -339,8 +312,7 @@
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             localStorage.setItem('app-lang', currentLang);
-            updateLanguageUI();
-            refreshAllViews(); 
+            updateLanguageUI(); refreshAllViews(); 
         }
 
         function updateLanguageUI() {
@@ -351,12 +323,9 @@
             });
         }
 
-        // ==========================================
-        // 雷达追踪引擎：保证下拉菜单紧贴图标且不被裁切
-        // ==========================================
         function toggleSettingsMenu(e) {
             e.stopPropagation(); 
-            document.getElementById('import-export-content').classList.add('hidden'); // 互斥
+            document.getElementById('import-export-content').classList.add('hidden'); 
             const arrow = document.getElementById('import-export-arrow');
             if(arrow) arrow.classList.remove('rotate-180');
 
@@ -364,18 +333,16 @@
             if (dropdown.classList.contains('hidden')) {
                 const rect = e.currentTarget.getBoundingClientRect();
                 dropdown.style.top = (rect.bottom + 4) + 'px';
-                let leftPos = rect.right - 192; // w-48 is 192px
+                let leftPos = rect.right - 160; 
                 if(leftPos < 0) leftPos = 4;
                 dropdown.style.left = leftPos + 'px';
                 dropdown.classList.remove('hidden');
-            } else {
-                dropdown.classList.add('hidden');
-            }
+            } else { dropdown.classList.add('hidden'); }
         }
 
         function toggleImportExport(e) {
             e.stopPropagation();
-            document.getElementById('settings-dropdown').classList.add('hidden'); // 互斥
+            document.getElementById('settings-dropdown').classList.add('hidden');
             const content = document.getElementById('import-export-content');
             const arrow = document.getElementById('import-export-arrow');
             if (content.classList.contains('hidden')) {
@@ -393,7 +360,6 @@
         document.addEventListener('click', (e) => {
             const settingsDropdown = document.getElementById('settings-dropdown');
             if (settingsDropdown && !settingsDropdown.contains(e.target)) settingsDropdown.classList.add('hidden');
-            
             const ieDropdown = document.getElementById('import-export-content');
             const ieWrap = document.getElementById('btn-import-export-wrap');
             if (ieDropdown && (!ieWrap || !ieWrap.contains(e.target))) {
@@ -401,32 +367,26 @@
                 const arrow = document.getElementById('import-export-arrow');
                 if(arrow) arrow.classList.remove('rotate-180');
             }
-            
             document.getElementById('custom-context-menu').classList.add('hidden');
-            
-            // 点击空白处自动隐藏图片专属菜单
             const imgMenu = document.getElementById('img-context-menu');
             if (imgMenu && !imgMenu.contains(e.target)) imgMenu.classList.add('hidden');
         }, true);
 
-        function setTheme(theme) {
-            localStorage.setItem('app-theme', theme); 
-            applyTheme(theme);
-        }
-
+        function setTheme(theme) { localStorage.setItem('app-theme', theme); applyTheme(theme); }
         function applyTheme(theme) {
             const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            if (isDark) { document.documentElement.classList.add('dark'); } 
-            else { document.documentElement.classList.remove('dark'); }
+            if (isDark) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
         }
-
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if (localStorage.getItem('app-theme') === 'system' || !localStorage.getItem('app-theme')) applyTheme('system');
         });
 
+        // ==========================================
+        // 💡 纯本地数据引擎
+        // ==========================================
         let notes = [];
         let trashBin = [];
-        let isCloudDataLoaded = false;
+        let isLocalDataLoaded = false;
         let categories = [
             { id: "未分类", name: "未分类", parentId: null },
             { id: "工作", name: "工作", parentId: null },
@@ -464,119 +424,39 @@
         let leftLayoutView = "list";
         let rightClickedCategoryId = null; 
         
-        let isLoginMode = true;
-        let cfUser = localStorage.getItem('cfUser');
-        let cfPass = localStorage.getItem('cfPass');
-        
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? '登入云端工作台' : '注册新账号';
-            document.getElementById('auth-btn').innerText = isLoginMode ? '登入' : '立即注册';
-            document.getElementById('auth-toggle').innerText = isLoginMode ? '没有账号？点击注册新账号' : '已有账号？点击返回登入';
-            document.getElementById('auth-error').classList.add('hidden');
-        }
-        
-        async function handleAuth() {
-            const u = document.getElementById('auth-username').value;
-            const p = document.getElementById('auth-password').value;
-            const errDiv = document.getElementById('auth-error');
-            if(!u || !p) { errDiv.innerText = "请输入账号和密码"; errDiv.classList.remove('hidden'); return; }
-            const endpoint = isLoginMode ? '/api/login' : '/api/register';
-            document.getElementById('auth-btn').innerText = "请稍候...";
-            
-            try {
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p })
-                });
-                const data = await res.json();
-                if(res.ok && data.success) {
-                    cfUser = u; cfPass = p;
-                    localStorage.setItem('cfUser', u); localStorage.setItem('cfPass', p);
-                    document.getElementById('auth-overlay').classList.add('hidden');
-                    loadCloudData();
-                } else {
-                    errDiv.innerText = data.message || "执行失败，请检查数据库绑定";
-                    errDiv.classList.remove('hidden');
-                }
-            } catch(e) {
-                errDiv.innerText = "网络请求失败，请确保已绑定KV并重试部署";
-                errDiv.classList.remove('hidden');
-            }
-            document.getElementById('auth-btn').innerText = isLoginMode ? '登入' : '立即注册';
-        }
-
-        async function deleteAccount() {
-            if(!cfUser) return;
-            if (!confirm(`🚨 危险操作警告 🚨\n\n此操作将彻底销毁您的账号【${cfUser}】以及云端所有的笔记数据！\n\n点击“确定”立即注销，点击“取消”放弃。`)) return;
-            try {
-                const res = await fetch('/api/delete-account', { method: 'POST', headers: getAuthHeaders() });
-                const data = await res.json();
-                if(res.ok && data.success) {
-                    alert("销毁成功：您的账号及所有云端数据已从服务器彻底清除！");
-                    localStorage.removeItem('cfUser'); localStorage.removeItem('cfPass');
-                    location.reload(); 
-                } else { alert("注销失败：" + (data.message || "未知错误")); }
-            } catch(e) { alert("网络请求失败：" + e.message); }
-        }
-        
-        function logout() { localStorage.removeItem('cfUser'); localStorage.removeItem('cfPass'); location.reload(); }
-        
-        function getAuthHeaders() {
-            return {
-                'Authorization': 'Basic ' + btoa(unescape(encodeURIComponent(cfUser + ':' + cfPass))),
-                'Content-Type': 'application/json'
-            };
-        }
-        
         window.addEventListener('DOMContentLoaded', () => {
             if (window.innerWidth < 768) { toggleLeftPanel(); }
             initResizers();
             initRichTextInteractiveEvents();
-
             document.getElementById('note-title-input').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') { e.preventDefault(); document.getElementById('note-editor-richtext').focus(); }
             });  
-
-            if (cfUser && cfPass) {
-                document.getElementById('auth-overlay').classList.add('hidden');
-                loadCloudData();
-            } else {
-                document.getElementById('auth-overlay').classList.remove('hidden');
-            }
-
             applyTheme(localStorage.getItem('app-theme') || 'system');
             updateLanguageUI();
+            
+            // 💡 直接加载本地数据
+            loadLocalData();
         });
         
-        async function loadCloudData() {
+        // 💡 修改为加载本地浏览器缓存
+        function loadLocalData() {
             if (typeof marked !== 'undefined') marked.use({ breaks: true, gfm: true });
             try {
-                const response = await fetch('/api/sync', { headers: getAuthHeaders() });
-                if (response.status === 401) { logout(); return; }
-                if (!response.ok) throw new Error('网络响应异常');
-                const data = await response.json();
-                
-                if (data.appName) {
-                    document.title = data.appName; 
-                    const titleEl = document.querySelector('[data-i18n="app-title"]');
-                    if (titleEl) titleEl.innerText = data.appName; 
-                    if (dict.zh) dict.zh['app-title'] = data.appName;
-                    if (dict.en) dict.en['app-title'] = data.appName;
+                const localStr = localStorage.getItem('MyLocalNotes_Data');
+                if (localStr) {
+                    const data = JSON.parse(localStr);
+                    if (data.notes) notes = data.notes;
+                    if (data.categories) {
+                        if (data.categories.length > 0 && typeof data.categories[0] === 'string') { categories = data.categories.map(c => ({ id: c, name: c, parentId: null })); } 
+                        else { categories = data.categories; }
+                    }
+                    if (data.categoryColors) categoryColors = data.categoryColors;
+                    if (data.trashBin) trashBin = data.trashBin;
+                    if (data.folderTreeRelations) folderTreeRelations = data.folderTreeRelations;
+                    if (data.leftExpandedFolders) leftExpandedFolders = data.leftExpandedFolders;
                 }
-
-                if (data.notes) notes = data.notes;
-                if (data.categories) {
-                    if (data.categories.length > 0 && typeof data.categories[0] === 'string') { categories = data.categories.map(c => ({ id: c, name: c, parentId: null })); } 
-                    else { categories = data.categories; }
-                }
-                if (data.categoryColors) categoryColors = data.categoryColors;
-                if (data.trashBin) trashBin = data.trashBin;
-                if (data.folderTreeRelations) folderTreeRelations = data.folderTreeRelations;
-                if (data.leftExpandedFolders) leftExpandedFolders = data.leftExpandedFolders;
                 
-                isCloudDataLoaded = true; 
+                isLocalDataLoaded = true; 
                 refreshAllViews();
                 
                 if (notes.length > 0) {
@@ -586,16 +466,22 @@
                     createNewNote();
                 }
             } catch (error) {
-                alert("🚨 云端数据加载失败！为防止数据被异常覆盖，已锁定自动保存功能。请检查网络并重启软件。");
-                document.getElementById('note-editor-richtext').innerHTML = "<h2 style='color:red; text-align:center; margin-top:20px;'>⚠️ 数据加载失败，请重启软件重试！</h2>";
-                document.getElementById('note-editor-richtext').setAttribute('contenteditable', 'false');
+                console.error("本地数据加载失败", error);
+                alert("🚨 本地缓存数据解析失败！");
             }
         }
         
-        async function saveCloudData() {
-            if(!cfUser || !isCloudDataLoaded) return; 
+        // 💡 修改为将数据写入本地浏览器缓存
+        function saveLocalData() {
+            if(!isLocalDataLoaded) return; 
             const allData = { notes, categories, categoryColors, trashBin, folderTreeRelations, leftExpandedFolders };
-            try { await fetch('/api/sync', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(allData) }); } catch (error) {}
+            try {
+                localStorage.setItem('MyLocalNotes_Data', JSON.stringify(allData));
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    alert('🚨 警告：本地存储空间已满！可能是插入了太多高清图片。请清理一些图片或笔记。');
+                }
+            }
         }
         
         function refreshAllViews() {
@@ -611,8 +497,8 @@
             document.getElementById('trash-count-badge').innerText = trashBin.length;
         }
         
-        function toggleTreeLayout(mode) { treeLayoutView = mode; saveCloudData(); refreshAllViews(); }
-        function toggleLeftView(mode) { leftLayoutView = mode; saveCloudData(); refreshAllViews(); }
+        function toggleTreeLayout(mode) { treeLayoutView = mode; saveLocalData(); refreshAllViews(); }
+        function toggleLeftView(mode) { leftLayoutView = mode; saveLocalData(); refreshAllViews(); }
 
         function getAllCategoryIds(rootId) {
             let ids = [rootId];
@@ -683,7 +569,7 @@
 
                         if (sourceNoteId) {
                             const idx = notes.findIndex(n => n.id === sourceNoteId);
-                            if (idx !== -1 && notes[idx].category !== cat.id) { notes[idx].category = cat.id; saveCloudData(); refreshAllViews(); }
+                            if (idx !== -1 && notes[idx].category !== cat.id) { notes[idx].category = cat.id; saveLocalData(); refreshAllViews(); }
                         } else if (sourceFolderId && sourceFolderId !== cat.id) {
                             if (sourceFolderId === '未分类' || sourceFolderId === '工作' || sourceFolderId === '生活') { alert('系统默认分类不可改变层级！'); return; }
                             let isCircular = false;
@@ -695,15 +581,15 @@
                             checkChild(sourceFolderId);
                             if (!isCircular) {
                                 const sourceCat = categories.find(c => c.id === sourceFolderId);
-                                if (sourceCat) { sourceCat.parentId = cat.id; saveCloudData(); refreshAllViews(); }
+                                if (sourceCat) { sourceCat.parentId = cat.id; saveLocalData(); refreshAllViews(); }
                             } else { alert("🚨 不能将父级目录移动到自身子目录下！"); }
                         }
                     };
                     cell.onclick = (e) => {
                         if (e.target.closest('.fa-caret-down') || e.target.closest('.fa-caret-right')) {
-                            leftExpandedFolders[cat.id] = !isExpanded; saveCloudData(); refreshAllViews();
+                            leftExpandedFolders[cat.id] = !isExpanded; saveLocalData(); refreshAllViews();
                         } else {
-                            currentFilterCategory = cat.id; leftExpandedFolders[cat.id] = true; saveCloudData(); refreshAllViews();
+                            currentFilterCategory = cat.id; leftExpandedFolders[cat.id] = true; saveLocalData(); refreshAllViews();
                         }
                     };
 
@@ -772,7 +658,7 @@
                         if (fromIdx !== -1 && toIdx !== -1) {
                             const [movedItem] = notes.splice(fromIdx, 1);
                             const newToIdx = notes.findIndex(n => n.id === note.id);
-                            notes.splice(newToIdx, 0, movedItem); saveCloudData(); renderLeftNotesView();
+                            notes.splice(newToIdx, 0, movedItem); saveLocalData(); renderLeftNotesView();
                         }
                     }
                 };
@@ -811,7 +697,7 @@
         function createNewNote() {
             const defaultCat = currentFilterCategory !== "全部" ? currentFilterCategory : "未分类";
             const newDoc = { id: 'md_' + Date.now(), title: '', content: '', category: defaultCat, updatedAt: Date.now() };
-            notes.unshift(newDoc); saveCloudData(); openNote(newDoc.id);
+            notes.unshift(newDoc); saveLocalData(); openNote(newDoc.id);
         }
         
         function openNote(id) {
@@ -827,11 +713,11 @@
         function deleteNote(id) {
             const idx = notes.findIndex(n => n.id === id); 
             if (idx !== -1) {
-                trashBin.push(notes.splice(idx, 1)[0]); saveCloudData();
+                trashBin.push(notes.splice(idx, 1)[0]); saveLocalData();
                 if (activeNoteId === id) { if (notes.length > 0) openNote(notes[0].id); else createNewNote(); } else { refreshAllViews(); }
             }
         }
-        function changeNoteCategory(newCatId) { const idx = notes.findIndex(n => n.id === activeNoteId); if (idx !== -1) { notes[idx].category = newCatId; saveCloudData(); refreshAllViews(); } }
+        function changeNoteCategory(newCatId) { const idx = notes.findIndex(n => n.id === activeNoteId); if (idx !== -1) { notes[idx].category = newCatId; saveLocalData(); refreshAllViews(); } }
         
         function handleEditorInput() { 
             if (!activeNoteId) return; 
@@ -845,7 +731,7 @@
             saveTimeout = setTimeout(() => {
                 const idx2 = notes.findIndex(n => n.id === activeNoteId);
                 if (idx2 !== -1) notes[idx2].updatedAt = Date.now(); 
-                saveCloudData(); renderLeftNotesView(); 
+                saveLocalData(); renderLeftNotesView(); 
             }, 1500); 
         }
         
@@ -863,7 +749,7 @@
             if(!catObj) return;
             const name = prompt(`${t('ctx-rename')} 【${catObj.name}】:`, catObj.name);
             if (!name || name.trim() === "") return;
-            catObj.name = name.trim(); saveCloudData(); refreshAllViews();
+            catObj.name = name.trim(); saveLocalData(); refreshAllViews();
         }
         
         function handleContextMenuDelete() {
@@ -879,7 +765,7 @@
                 notes = notes.filter(n => !idsToDelete.includes(n.category));
                 categories = categories.filter(c => !idsToDelete.includes(c.id));
                 if (idsToDelete.includes(currentFilterCategory)) currentFilterCategory = "全部";
-                saveCloudData(); refreshAllViews();
+                saveLocalData(); refreshAllViews();
             }
         }
         
@@ -895,7 +781,7 @@
                 }
             }
             categories.push({ id: 'cat_' + Date.now(), name: name.trim(), parentId: parentId });
-            saveCloudData(); refreshAllViews();
+            saveLocalData(); refreshAllViews();
         }
         
         function renderCategorySelectOptions() {
@@ -903,18 +789,17 @@
             function appendOption(parentId, depth) {
                 categories.filter(c => c.parentId === parentId).forEach(cat => {
                     const opt = document.createElement('option');
-                    opt.value = cat.id; 
-                    opt.innerHTML = t(cat.name); // 💡 彻底去掉了 '—'.repeat(depth)，文字将全部靠左对齐
+                    opt.value = cat.id; opt.innerHTML = t(cat.name); // 💡 横线已移除
                     select.appendChild(opt); appendOption(cat.id, depth + 1); 
                 });
             }
             appendOption(null, 0);
         }
         
-        function recoverAllTrash() { if (trashBin.length > 0 && confirm("确定要恢复全部回收站文档吗？")) { notes.push(...trashBin); trashBin = []; saveCloudData(); refreshAllViews(); } }
-        function clearTrashCompletely() { if (trashBin.length > 0 && confirm("警告：不可挽回！确定清空回收站吗？")) { trashBin = []; saveCloudData(); refreshAllViews(); } }
-        function recoverDeletedFile(id) { const idx = trashBin.findIndex(t => t.id === id); if (idx !== -1) { notes.push(trashBin.splice(idx, 1)[0]); saveCloudData(); refreshAllViews(); } }
-        function permanentlyDeleteFile(id) { if (confirm("永久粉碎不可挽回，是否继续？")) { trashBin = trashBin.filter(t => t.id !== id); saveCloudData(); refreshAllViews(); } }
+        function recoverAllTrash() { if (trashBin.length > 0 && confirm("确定要恢复全部回收站文档吗？")) { notes.push(...trashBin); trashBin = []; saveLocalData(); refreshAllViews(); } }
+        function clearTrashCompletely() { if (trashBin.length > 0 && confirm("警告：不可挽回！确定清空回收站吗？")) { trashBin = []; saveLocalData(); refreshAllViews(); } }
+        function recoverDeletedFile(id) { const idx = trashBin.findIndex(t => t.id === id); if (idx !== -1) { notes.push(trashBin.splice(idx, 1)[0]); saveLocalData(); refreshAllViews(); } }
+        function permanentlyDeleteFile(id) { if (confirm("永久粉碎不可挽回，是否继续？")) { trashBin = trashBin.filter(t => t.id !== id); saveLocalData(); refreshAllViews(); } }
         
         function toggleLeftPanel() { 
             leftPanelClosed = !leftPanelClosed; 
@@ -938,63 +823,38 @@
             function stopResizeRight() { resizerRight.classList.remove('resizing'); document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeRight); document.removeEventListener('mouseup', stopResizeRight); }
         }
 
-        // ==========================================
-        // 核心恢复：图片红绿锁与相关交互逻辑
-        // ==========================================
         window.toggleImgLock = function(btn, e) {
             if(e) e.stopPropagation();
             const wrapper = btn.closest('.custom-img-wrapper');
             const icon = btn.querySelector('i');
             if (wrapper.classList.contains('locked')) {
-                wrapper.classList.remove('locked');
-                btn.classList.remove('locked');
-                icon.className = 'fa-solid fa-lock-open';
+                wrapper.classList.remove('locked'); btn.classList.remove('locked'); icon.className = 'fa-solid fa-lock-open';
             } else {
-                wrapper.classList.add('locked');
-                btn.classList.add('locked');
-                icon.className = 'fa-solid fa-lock';
+                wrapper.classList.add('locked'); btn.classList.add('locked'); icon.className = 'fa-solid fa-lock';
             }
             handleEditorInput();
         };
 
-        window.imgDragStart = function(e) {
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', 'custom-img-wrapper');
-            window.draggingImageNode = e.target;
-        };
-        
-        window.imgDragEnd = function(e) {
-            e.target.classList.remove('dragging');
-            window.draggingImageNode = null;
-            handleEditorInput();
-        };
+        window.imgDragStart = function(e) { e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'custom-img-wrapper'); window.draggingImageNode = e.target; };
+        window.imgDragEnd = function(e) { e.target.classList.remove('dragging'); window.draggingImageNode = null; handleEditorInput(); };
 
         let currentImageWrapper = null;
-        window.showImgContextMenu = function(e, wrapper) {
-            currentImageWrapper = wrapper;
-            const menu = document.getElementById('img-context-menu');
-            menu.classList.remove('hidden');
-            menu.style.left = e.clientX + 'px';
-            menu.style.top = e.clientY + 'px';
-        };
+        window.showImgContextMenu = function(e, wrapper) { currentImageWrapper = wrapper; const menu = document.getElementById('img-context-menu'); menu.classList.remove('hidden'); menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; };
 
         window.imgMenuAction = async function(action) {
-            const menu = document.getElementById('img-context-menu');
-            menu.classList.add('hidden');
+            const menu = document.getElementById('img-context-menu'); menu.classList.add('hidden');
             if (!currentImageWrapper) return;
             const img = currentImageWrapper.querySelector('img');
 
             if (action === 'download') {
                 const a = document.createElement('a'); a.href = img.src; a.download = 'image_' + Date.now() + '.png'; a.click();
             } else if (action === 'copy') {
-                try { const res = await fetch(img.src); const blob = await res.blob(); await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]); alert('图片已复制到剪贴板！'); } catch(err) { alert('复制失败'); }
+                try { const res = await fetch(img.src); const blob = await res.blob(); await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]); alert('图片已复制！'); } catch(err) {}
             } else if (action === 'cut') {
-                try { const res = await fetch(img.src); const blob = await res.blob(); await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]); currentImageWrapper.remove(); handleEditorInput(); } catch(err) { alert('剪切失败'); }
+                try { const res = await fetch(img.src); const blob = await res.blob(); await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]); currentImageWrapper.remove(); handleEditorInput(); } catch(err) {}
             } else if (action === 'share') {
-                if (navigator.share) {
-                    try { const res = await fetch(img.src); const blob = await res.blob(); const file = new File([blob], 'image.png', {type: blob.type}); await navigator.share({ files: [file], title: '分享图片' }); } catch(e) {}
-                } else { alert('当前浏览器不支持原生分享'); }
+                if (navigator.share) { try { const res = await fetch(img.src); const blob = await res.blob(); const file = new File([blob], 'image.png', {type: blob.type}); await navigator.share({ files: [file], title: '分享图片' }); } catch(e) {} } 
+                else { alert('当前浏览器不支持分享'); }
             }
             currentImageWrapper = null;
         };
@@ -1008,30 +868,16 @@
                    if (lockBtn) { e.preventDefault(); e.stopPropagation(); window.toggleImgLock(lockBtn, e); }
                });
     
-               editor.addEventListener('contextmenu', (e) => {
-                   const wrapper = e.target.closest('.custom-img-wrapper');
-                   if (wrapper) { e.preventDefault(); showImgContextMenu(e, wrapper); }
-               });
-               editor.addEventListener('dblclick', (e) => {
-                   const wrapper = e.target.closest('.custom-img-wrapper');
-                   if (wrapper) { e.preventDefault(); showImgContextMenu(e, wrapper); }
-               });
-
-               editor.addEventListener('dragover', (e) => {
-                   if (window.draggingImageNode) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-               });
+               editor.addEventListener('contextmenu', (e) => { const wrapper = e.target.closest('.custom-img-wrapper'); if (wrapper) { e.preventDefault(); showImgContextMenu(e, wrapper); } });
+               editor.addEventListener('dblclick', (e) => { const wrapper = e.target.closest('.custom-img-wrapper'); if (wrapper) { e.preventDefault(); showImgContextMenu(e, wrapper); } });
+               editor.addEventListener('dragover', (e) => { if (window.draggingImageNode) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } });
 
                editor.addEventListener('drop', (e) => {
                    if (window.draggingImageNode) {
-                       e.preventDefault();
-                       let range = null;
+                       e.preventDefault(); let range = null;
                        if (document.caretRangeFromPoint) { range = document.caretRangeFromPoint(e.clientX, e.clientY); } 
                        else if (document.caretPositionFromPoint) { const pos = document.caretPositionFromPoint(e.clientX, e.clientY); range = document.createRange(); range.setStart(pos.offsetNode, pos.offset); }
-                       if (range) {
-                           window.draggingImageNode.remove();
-                           range.insertNode(window.draggingImageNode);
-                           const space = document.createTextNode('\u00A0'); range.collapse(false); range.insertNode(space);
-                       }
+                       if (range) { window.draggingImageNode.remove(); range.insertNode(window.draggingImageNode); const space = document.createTextNode('\u00A0'); range.collapse(false); range.insertNode(space); }
                        window.draggingImageNode = null; handleEditorInput();
                    }
                });
@@ -1067,12 +913,10 @@
 
                editor.addEventListener('paste', (e) => {
                      e.preventDefault(); 
-                     let hasImage = false;
-                     const items = (e.clipboardData || window.clipboardData).items;
+                     let hasImage = false; const items = (e.clipboardData || window.clipboardData).items;
                      for (let i = 0; i < items.length; i++) {
                            if (items[i].type.indexOf("image") !== -1) {
-                               hasImage = true;
-                               const reader = new FileReader();
+                               hasImage = true; const reader = new FileReader();
                                reader.onload = (event) => {
                                    const base64Image = event.target.result;
                                    const imgHTML = `<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${base64Image}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
@@ -1081,10 +925,7 @@
                                reader.readAsDataURL(items[i].getAsFile());
                            }
                      }
-                     if (!hasImage) {
-                         const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-                         document.execCommand('insertText', false, text); handleEditorInput();
-                     }
+                     if (!hasImage) { const text = (e.originalEvent || e).clipboardData.getData('text/plain'); document.execCommand('insertText', false, text); handleEditorInput(); }
                 });
          }
      
@@ -1095,7 +936,7 @@
         function triggerFolderImport() { document.getElementById('import-folder-input').click(); }
         
         async function exportCurrentFolder() {
-            if (currentFilterCategory === "全部") { alert("请先在左侧选择一个特定的分类文件夹后再导出！"); return; }
+            if (currentFilterCategory === "全部") { alert("请先在左侧选择分类！"); return; }
             const currentCatObj = categories.find(c => c.id === currentFilterCategory); if (!currentCatObj) return;
             const originalBtnText = document.querySelector('button[onclick="exportCurrentFolder()"]').innerHTML;
             document.querySelector('button[onclick="exportCurrentFolder()"]').innerHTML = `<i class="fa-solid fa-spinner fa-spin text-blue-200"></i> 打包中...`;
@@ -1103,19 +944,16 @@
                 const zip = new JSZip();
                 function addFilesToZip(folderId, currentZipFolder) {
                     notes.filter(n => n.category === folderId).forEach(note => {
-                        let mdContent = note.content;
-                        if (typeof TurndownService !== 'undefined' && note.content.includes('<')) mdContent = new TurndownService().turndown(note.content);
+                        let mdContent = note.content; if (typeof TurndownService !== 'undefined' && note.content.includes('<')) mdContent = new TurndownService().turndown(note.content);
                         currentZipFolder.file(`${(note.title || t('untitled')).replace(/[\\/:*?"<>|]/g, "_")}.md`, mdContent);
                     });
-                    categories.filter(c => c.parentId === folderId).forEach(sub => {
-                        addFilesToZip(sub.id, currentZipFolder.folder(sub.name.replace(/[\\/:*?"<>|]/g, "_")));
-                    });
+                    categories.filter(c => c.parentId === folderId).forEach(sub => { addFilesToZip(sub.id, currentZipFolder.folder(sub.name.replace(/[\\/:*?"<>|]/g, "_"))); });
                 }
                 const rootFolderName = currentCatObj.name.replace(/[\\/:*?"<>|]/g, "_");
                 addFilesToZip(currentFilterCategory, zip.folder(rootFolderName));
                 const content = await zip.generateAsync({ type: "blob" });
                 const url = window.URL.createObjectURL(content); const a = document.createElement("a"); a.href = url; a.download = `${rootFolderName}_备份.zip`; a.click(); window.URL.revokeObjectURL(url);
-            } catch (error) { alert("导出失败，请检查控制台报错。"); } finally { document.querySelector('button[onclick="exportCurrentFolder()"]').innerHTML = originalBtnText; }
+            } catch (error) { alert("导出失败"); } finally { document.querySelector('button[onclick="exportCurrentFolder()"]').innerHTML = originalBtnText; }
         }
 
         function handleImportFile(event, type) {
@@ -1125,7 +963,7 @@
                 let parsed = e.target.result; if(type === 'md' && typeof marked !== 'undefined') parsed = marked.parse(parsed);
                 const defaultCat = currentFilterCategory !== "全部" ? currentFilterCategory : "未分类";
                 const doc = { id: 'md_' + Date.now(), title: file.name.replace(/\.[^/.]+$/, ""), content: parsed, category: defaultCat, updatedAt: Date.now() };
-                notes.push(doc); saveCloudData(); openNote(doc.id); event.target.value = '';
+                notes.push(doc); saveLocalData(); openNote(doc.id); event.target.value = '';
             };
             reader.readAsText(file);
         }
@@ -1142,8 +980,7 @@
                     if (file.webkitRelativePath) {
                         const parts = file.webkitRelativePath.split('/');
                         for (let i = 0; i < parts.length - 1; i++) {
-                            const dirName = parts[i];
-                            let found = categories.find(c => c.name === dirName && c.parentId === currentParentId);
+                            const dirName = parts[i]; let found = categories.find(c => c.name === dirName && c.parentId === currentParentId);
                             if (!found) { found = { id: 'cat_' + Date.now() + '_' + Math.floor(Math.random() * 10000), name: dirName, parentId: currentParentId }; categories.push(found); }
                             currentParentId = found.id; 
                         }
@@ -1152,7 +989,7 @@
                     let parsed = e.target.result; if(file.name.endsWith('.md') && typeof marked !== 'undefined') parsed = marked.parse(parsed);
                     const newDoc = { id: 'tree_' + Date.now() + '_' + loaded, title: file.name.replace(/\.[^/.]+$/, ""), content: parsed, category: finalCategory, updatedAt: Date.now() };
                     notes.push(newDoc); if (!firstId) firstId = newDoc.id;
-                    if (loaded === validFiles.length) { saveCloudData(); currentFilterCategory = finalCategory; if (firstId) openNote(firstId); else refreshAllViews(); alert("多级目录树导入成功！"); }
+                    if (loaded === validFiles.length) { saveLocalData(); currentFilterCategory = finalCategory; if (firstId) openNote(firstId); else refreshAllViews(); alert("多级目录树导入成功！"); }
                 };
                 reader.readAsText(file);
             });
@@ -1167,17 +1004,11 @@
             const a = document.createElement('a'); a.download = `${title}.${formatType}`; a.href = url; a.click(); window.URL.revokeObjectURL(url);
         }
          
-        // ==========================================
-        // 核心恢复：图片上传自带玻璃罩外壳
-        // ==========================================
         function handleLocalImageUpload(event) {
-               const files = event.target.files;
-               if (!files || files.length === 0) return;
-               const editor = document.getElementById('note-editor-richtext');
-               if (editor) editor.focus(); 
-
+               const files = event.target.files; if (!files || files.length === 0) return;
+               const editor = document.getElementById('note-editor-richtext'); if (editor) editor.focus(); 
                Array.from(files).forEach(file => {
-                   if (!file.type.startsWith('image/')) { alert(`文件 [${file.name}] 不是图片类型，已跳过！`); return; }
+                   if (!file.type.startsWith('image/')) { return; }
                    const reader = new FileReader();
                    reader.onload = function(e) {
                         const base64Image = e.target.result;
