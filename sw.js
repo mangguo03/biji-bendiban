@@ -1,14 +1,18 @@
-// 监听安装事件
-self.addEventListener('install', (e) => {
-    console.log('[Service Worker] 安装成功');
+const CACHE_NAME = 'local-notes-v1';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json'
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+  );
 });
 
-// 监听激活事件
-self.addEventListener('activate', (e) => {
-    console.log('[Service Worker] 激活成功');
-});
-
-// 核心要求：必须有 fetch 监听器，浏览器才会弹出安装按钮
-self.addEventListener('fetch', (e) => {
-    // 暂不拦截任何网络请求，直接放行
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(response => response || fetch(e.request))
+  );
 });
