@@ -80,6 +80,7 @@
         .active-tree-node { background-color: #3b82f6 !important; color: white !important; }
         #left-notes-container div.active-note-item:hover { background-color: #3b82f6 !important; }
     </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 </head>
 <body class="bg-slate-900 font-sans h-screen flex flex-col overflow-hidden text-slate-800 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
     
@@ -206,6 +207,9 @@
                                 <button onclick="setTheme('system'); document.getElementById('settings-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
                                     <i class="fa-solid fa-desktop text-slate-400 w-4 text-center"></i> <span data-i18n="theme-sys">系统</span>
                                 </button>
+                                <button onclick="factoryReset()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-3 font-black transition-colors">
+                                       <i class="fa-solid fa-skull w-4 text-center"></i> <span>恢复出厂设置</span>
+                                 </button>
                                 <div class="h-px bg-slate-100 dark:bg-slate-700 w-full my-1"></div>
                                 <button onclick="showAboutModal(); document.getElementById('settings-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
                                     <i class="fa-solid fa-circle-info text-blue-400 w-4 text-center"></i> <span data-i18n="about-soft">关于软件</span>
@@ -495,12 +499,22 @@
             loadLocalData();
         });
         
-        function loadLocalData() {
+        async function loadLocalData() {
             if (typeof marked !== 'undefined') marked.use({ breaks: true, gfm: true });
             try {
-                const localStr = localStorage.getItem('MyLocalNotes_Data');
-                if (localStr) {
-                    const data = JSON.parse(localStr);
+                // 💡 优先从全新的“大容量数据库”获取数据
+                let data = await localforage.getItem('MyLocalNotes_Data');
+                
+                // 💡 无缝升级：如果大数据库是空的，说明是老用户，尝试把以前 5MB 小缓存里的老数据搬家过来
+                if (!data) {
+                    const localStr = localStorage.getItem('MyLocalNotes_Data');
+                    if (localStr) {
+                        data = JSON.parse(localStr);
+                        await localforage.setItem('MyLocalNotes_Data', data); // 存入新家
+                    }
+                }
+
+                if (data) {
                     if (data.notes) notes = data.notes;
                     if (data.categories) {
                         if (data.categories.length > 0 && typeof data.categories[0] === 'string') { categories = data.categories.map(c => ({ id: c, name: c, parentId: null })); } 
@@ -522,23 +536,40 @@
                     createNewNote();
                 }
             } catch (error) {
-                console.error("本地数据加载失败", error);
-                alert("🚨 本地缓存数据解析失败！");
+                console.error("本地大容量数据加载失败", error);
+                alert("🚨 本地数据库解析失败！");
             }
         }
         
-        function saveLocalData() {
+        async function saveLocalData() {
             if(!isLocalDataLoaded) return; 
             const allData = { notes, categories, categoryColors, trashBin, folderTreeRelations, leftExpandedFolders };
             try {
-                localStorage.setItem('MyLocalNotes_Data', JSON.stringify(allData));
+                // 💡 存入不限容量的 IndexedDB 数据库
+                await localforage.setItem('MyLocalNotes_Data', allData);
             } catch (e) {
-                if (e.name === 'QuotaExceededError') {
-                    alert('🚨 警告：本地存储空间已满！可能是插入了太多高清图片。请清理一些图片或笔记。');
-                }
+                alert('🚨 警告：您的电脑硬盘存储空间可能已满，无法继续保存！请及时导出数据备份，重置软件');
             }
         }
         
+        async function factoryReset() {
+            if (confirm("🚨 终极警告 🚨\n\n您确定要彻底销毁所有笔记和文件夹吗？\n此操作将清空本地数据库，所有数据将永久丢失，且不可恢复！\n\n点击【确定】立即销毁，点击【取消】放弃。")) {
+                try {
+                    // 1. 清空 IndexedDB 大数据库
+                    if (typeof localforage !== 'undefined') {
+                        await localforage.clear();
+                    }
+                    // 2. 清空原本的 localStorage
+                    localStorage.removeItem('MyLocalNotes_Data');
+                    
+                    alert("💥 轰！所有数据已彻底销毁。即将重启软件...");
+                    // 3. 强制刷新页面，回到初始状态
+                    location.reload();
+                } catch (error) {
+                    alert("清理失败，请检查浏览器权限。");
+                }
+            }
+        }
         function refreshAllViews() {
             document.getElementById('view-tree-list').style.backgroundColor = treeLayoutView === 'list' ? '#3b82f6' : 'transparent';
             document.getElementById('view-tree-grid').style.backgroundColor = treeLayoutView === 'grid' ? '#3b82f6' : 'transparent';
