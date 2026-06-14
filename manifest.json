@@ -1,10 +1,13 @@
 {
   "name": "本地轻笔记",
   "short_name": "轻笔记",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#1e293b",
+  "window_controls_overlay": {
+    "enabled": true
+  },
   "icons": [
     {
       "src": "192.png",
