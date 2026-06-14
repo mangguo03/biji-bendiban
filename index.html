@@ -286,7 +286,6 @@
         <button onclick="window.imgMenuAction('download')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i class="fa-solid fa-download text-blue-500"></i> 下载</button>
         <button onclick="window.imgMenuAction('copy')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i class="fa-regular fa-copy text-emerald-500"></i> 复制</button>
         <button onclick="window.imgMenuAction('cut')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700"><i class="fa-solid fa-scissors text-amber-500"></i> 剪切</button>
-        <button onclick="window.imgMenuAction('share')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i class="fa-solid fa-share-nodes text-purple-500"></i> 分享</button>
         <button onclick="window.imgMenuAction('delete')" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center gap-2"><i class="fa-regular fa-trash-can"></i> 删除</button>
     </div>
 
@@ -922,18 +921,7 @@
             if (!currentImageWrapper) return;
             const img = currentImageWrapper.querySelector('img');
 
-            // 💡 引擎 1：专门为“分享”准备的闪电转换算法（Base64 直接变实体文件，0延迟，防卡死）
-            const dataURLtoFile = (dataurl, filename) => {
-                const arr = dataurl.split(',');
-                const mime = arr[0].match(/:(.*?);/)[1];
-                const bstr = atob(arr[1]);
-                let n = bstr.length;
-                const u8arr = new Uint8Array(n);
-                while(n--) { u8arr[n] = bstr.charCodeAt(n); }
-                return new File([u8arr], filename, {type: mime});
-            };
-
-            // 💡 引擎 2：专门为“剪贴板”准备的 PNG 画布转换引擎
+            // 💡 引擎：专门为“剪贴板”准备的 PNG 画布转换引擎
             const writeToClipboard = () => {
                 return new Promise((resolve, reject) => {
                     try {
@@ -969,33 +957,16 @@
                 } catch(err) {
                     alert('❌ 剪切失败：可能当前浏览器不支持或未授予剪贴板权限。');
                 }
-            } else if (action === 'share') {
-                if (navigator.share) {
-                    try {
-                        // 瞬间生成标准 JPEG 文件，塞给系统分享面板
-                        const file = dataURLtoFile(img.src, 'share_' + Date.now() + '.jpg');
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            await navigator.share({ files: [file], title: '分享云笔记图片' });
-                        } else {
-                            alert('⚠️ 您当前的系统版本限制了网页直接呼出分享面板，请使用【下载】功能保存图片。');
-                        }
-                    } catch(e) {
-                        console.log('分享已取消或被系统挂起');
-                    }
-                } else {
-                    alert('⚠️ 您的浏览器不支持原生分享功能，请使用【下载】功能。');
-                }
             } else if (action === 'delete') {
-                // 💡 新增的删除逻辑
+                // 删除逻辑
                 if (confirm('⚠️ 确定要删除这张图片吗？')) {
                     currentImageWrapper.remove();
-                    handleEditorInput(); // 触发自动保存，让云端/本地存储知道图片被删了
+                    handleEditorInput(); // 触发自动保存
                 }
             }
             
             currentImageWrapper = null;
         };
-
         function initRichTextInteractiveEvents() {
                let activeImage = null; let startY = 0; let startX = 0; let startWidth = 0; let startRatio = 1;
                const editor = document.getElementById('note-editor-richtext');
