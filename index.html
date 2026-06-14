@@ -287,6 +287,7 @@
         <button onclick="window.imgMenuAction('copy')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i class="fa-regular fa-copy text-emerald-500"></i> 复制</button>
         <button onclick="window.imgMenuAction('cut')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700"><i class="fa-solid fa-scissors text-amber-500"></i> 剪切</button>
         <button onclick="window.imgMenuAction('share')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i class="fa-solid fa-share-nodes text-purple-500"></i> 分享</button>
+        <button onclick="window.imgMenuAction('delete')" class="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center gap-2"><i class="fa-regular fa-trash-can"></i> 删除</button>
     </div>
 
     <div id="about-modal" class="hidden fixed inset-0 bg-black/50 z-[99999] flex items-center justify-center p-4 transition-opacity">
@@ -921,58 +922,77 @@
             if (!currentImageWrapper) return;
             const img = currentImageWrapper.querySelector('img');
 
-            // 💡 核心修复：创建一个“格式转换引擎”，把图片实时转成剪贴板和分享系统最兼容的 PNG 格式
-            const getPngBlob = () => {
-                return new Promise((resolve) => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.naturalWidth || img.width;
-                    canvas.height = img.naturalHeight || img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    canvas.toBlob(resolve, 'image/png');
+            // 💡 引擎 1：专门为“分享”准备的闪电转换算法（Base64 直接变实体文件，0延迟，防卡死）
+            const dataURLtoFile = (dataurl, filename) => {
+                const arr = dataurl.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while(n--) { u8arr[n] = bstr.charCodeAt(n); }
+                return new File([u8arr], filename, {type: mime});
+            };
+
+            // 💡 引擎 2：专门为“剪贴板”准备的 PNG 画布转换引擎
+            const writeToClipboard = () => {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth || img.width;
+                        canvas.height = img.naturalHeight || img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        canvas.toBlob(async (blob) => {
+                            if (!blob) throw new Error('Blob 生成失败');
+                            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                            resolve();
+                        }, 'image/png');
+                    } catch (err) { reject(err); }
                 });
             };
 
             if (action === 'download') {
-                // 下载可以直接保留原来的格式，节约体积
                 const a = document.createElement('a'); a.href = img.src; a.download = 'image_' + Date.now() + '.jpg'; a.click();
             } else if (action === 'copy') {
                 try {
-                    const blob = await getPngBlob();
-                    // 强制以 image/png 格式写入剪贴板，彻底解决变成乱码文字的问题
-                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                    alert('✅ 图片已成功复制！');
+                    await writeToClipboard();
+                    alert('✅ 图片已成功复制，可直接去微信/QQ粘贴！');
                 } catch(err) {
-                    alert('❌ 复制失败：请确保网页处于 HTTPS 安全环境下，并允许浏览器访问剪贴板。');
+                    alert('❌ 复制失败：可能当前浏览器不支持或未授予剪贴板权限。');
                 }
             } else if (action === 'cut') {
                 try {
-                    const blob = await getPngBlob();
-                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    await writeToClipboard();
                     currentImageWrapper.remove();
                     handleEditorInput();
-                    alert('✂️ 图片已剪切！');
+                    alert('✂️ 图片已成功剪切！');
                 } catch(err) {
-                    alert('❌ 剪切失败：请确保网页处于 HTTPS 安全环境下，并允许浏览器访问剪贴板。');
+                    alert('❌ 剪切失败：可能当前浏览器不支持或未授予剪贴板权限。');
                 }
             } else if (action === 'share') {
                 if (navigator.share) {
                     try {
-                        const blob = await getPngBlob();
-                        // 包装成标准的 File 对象，防止系统分享面板崩溃
-                        const file = new File([blob], 'share_' + Date.now() + '.png', { type: 'image/png' });
+                        // 瞬间生成标准 JPEG 文件，塞给系统分享面板
+                        const file = dataURLtoFile(img.src, 'share_' + Date.now() + '.jpg');
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            await navigator.share({ files: [file], title: '分享图片' });
+                            await navigator.share({ files: [file], title: '分享云笔记图片' });
                         } else {
-                            alert('❌ 当前系统不支持分享此格式的图片。');
+                            alert('⚠️ 您当前的系统版本限制了网页直接呼出分享面板，请使用【下载】功能保存图片。');
                         }
                     } catch(e) {
-                        console.log('分享面板已关闭');
+                        console.log('分享已取消或被系统挂起');
                     }
                 } else {
-                    alert('❌ 当前浏览器不支持原生分享功能。');
+                    alert('⚠️ 您的浏览器不支持原生分享功能，请使用【下载】功能。');
+                }
+            } else if (action === 'delete') {
+                // 💡 新增的删除逻辑
+                if (confirm('⚠️ 确定要删除这张图片吗？')) {
+                    currentImageWrapper.remove();
+                    handleEditorInput(); // 触发自动保存，让云端/本地存储知道图片被删了
                 }
             }
+            
             currentImageWrapper = null;
         };
 
