@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>本地轻笔记</title>
+    
     <link rel="manifest" href="manifest.json">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +13,6 @@
     </script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -26,13 +26,12 @@
         .panel-large-text { font-size: 12px !important; font-weight: 800 !important; }
         .sync-btn-font { font-size: 12px !important; font-weight: 900 !important; }
 
-        /* 💡 移动端拖拽核心防御：禁用原生长按弹出菜单和文字选中，防止阻断拖拽 */
         [draggable="true"] {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
-            -webkit-user-drag: element; /* 兼容部分老旧苹果系统 */
-            touch-action: pan-y; /* 💡 终极绝招：允许上下滑动列表，但绝不干扰手指长按！ */
+            -webkit-user-drag: element; 
+            touch-action: pan-y; 
         }
         
         .md-preview h1, .md-preview h1 *, .md-preview h1 font { font-size: 2.6rem !important; font-weight: 800 !important; line-height: 1.3 !important; }
@@ -86,7 +85,7 @@
     
     <header id="app-header" class="bg-slate-800 text-slate-200 py-0.5 px-3 flex items-center select-none border-b border-slate-700 relative z-[70]" style="-webkit-app-region: drag;">
         <div class="flex items-center gap-1.5 pointer-events-none" style="-webkit-app-region: no-drag;">
-            <i class="fa-solid fa-pen-to-square text-emerald-400 text-sm"></i>
+            <i class="fa-regular fa-pen-to-square" style="color: rgb(75, 231, 7);"></i>
             <span class="font-black tracking-wide text-sm bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300" data-i18n="app-title">本地轻笔记</span>
         </div>
     </header>
@@ -97,34 +96,40 @@
 
     <div id="workspace-container" class="flex flex-1 overflow-hidden w-full bg-slate-200 dark:bg-slate-900 transition-colors duration-300">
         
-        <aside id="left-panel" class="bg-slate-50 dark:bg-slate-800 dark:border-slate-700 flex flex-col flex-shrink-0 overflow-hidden border-r border-slate-200 panel-large-text transition-all relative z-50 h-full" style="width: 170px; min-width: 130px; max-width: 480px;">
-            <div id="all-docs-container" class="py-1.5 px-[9px] border-b border-slate-200 dark:border-slate-700 bg-slate-100/40 dark:bg-slate-800 flex-shrink-0"></div>
-            <div class="px-3.5 py-2 bg-slate-200/60 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0 select-none border-b border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800 transition-colors" onclick="toggleFolderSection()">
+        <aside id="left-panel" class="bg-slate-50 dark:bg-slate-800 dark:border-slate-700 flex flex-col flex-shrink-0 overflow-hidden border-r border-slate-200 panel-large-text transition-all relative z-50 h-full" style="width: 150px; min-width: 120px; max-width: 480px;">
+            <div id="all-docs-container" class="py-0.5 px-1.5 border-b border-slate-200 dark:border-slate-700 bg-slate-100/40 dark:bg-slate-800 flex-shrink-0"></div>
+            
+            <div class="px-2.5 py-1.5 bg-slate-200/60 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0 select-none border-b border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800 transition-colors" onclick="toggleFolderSection()">
                 <span class="sync-btn-font text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1.5">
                     <i id="folder-section-icon" class="fa-solid fa-chevron-down text-[11px] transition-transform duration-200"></i>
-                    <span data-i18n="label-folder">文件夹</span>
+                    <span data-i18n="label-folder">文件</span>
                 </span>
                 <div class="flex items-center gap-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded p-0.5 shadow-inner scale-95 origin-right" onclick="event.stopPropagation()">
-                    <button id="view-tree-list" onclick="toggleTreeLayout('list')" class="px-2 py-0.5 text-xs font-black rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200" data-i18n="btn-list">列表</button>
-                    <button id="view-tree-grid" onclick="toggleTreeLayout('grid')" class="px-2 py-0.5 text-xs font-black rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200" data-i18n="btn-grid">图表</button>
+                    <button id="view-tree-list" onclick="toggleTreeLayout('list')" class="px-2 py-1 text-[11px] rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200 transition-colors" title="列表视图"><i class="fa-solid fa-list-ul"></i></button>
+                    <button id="view-tree-grid" onclick="toggleTreeLayout('grid')" class="px-2 py-1 text-[11px] rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200 transition-colors" title="九宫格视图"><i class="fa-solid fa-table-cells-large"></i></button>
                 </div>
             </div>
             
-            <div id="category-tree-container" class="p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100/40 dark:bg-slate-800/40 flex-shrink-0 max-h-[30vh] overflow-y-auto space-y-1"></div>
+            <div id="category-tree-container" class="p-1.5 border-b border-slate-200 dark:border-slate-700 bg-slate-100/40 dark:bg-slate-800/40 flex-shrink-0 max-h-[30vh] overflow-y-auto space-y-1"></div>
             
-            <div class="px-3.5 py-2 bg-slate-200/60 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0 select-none border-b border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800 transition-colors" onclick="toggleContentSection()">
-                <span class="sync-btn-font text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1.5">
-                    <i id="content-section-icon" class="fa-solid fa-chevron-down text-[11px] transition-transform duration-200"></i>
-                    <span data-i18n="label-content">笔记集</span>
-                </span>
-                <div class="flex items-center gap-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded p-0.5 shadow-inner scale-95 origin-right" onclick="event.stopPropagation()">
-                    <button id="view-left-list" onclick="toggleLeftView('list')" class="px-2 py-0.5 text-xs font-black rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200" style="background-color: #3b82f6;" data-i18n="btn-list">列表</button>
-                    <button id="view-left-grid" onclick="toggleLeftView('grid')" class="px-2 py-0.5 text-xs font-black rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200" style="background-color: transparent;" data-i18n="btn-grid">图表</button>
+            <div class="px-1 py-1 bg-slate-200/60 dark:bg-slate-900/60 flex items-center justify-center gap-1.5 flex-shrink-0 select-none border-b border-slate-200 dark:border-slate-700 transition-colors">
+                <div class="flex items-center gap-0.5">
+                    <div onclick="toggleContentSection()" class="cursor-pointer px-1 py-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded transition-colors flex items-center justify-center">
+                        <i id="content-section-icon" class="fa-solid fa-chevron-down text-[11px] text-emerald-600 dark:text-emerald-400 transition-transform duration-200"></i>
+                    </div>
+                    <div class="flex items-center gap-0.5 bg-emerald-100/80 dark:bg-emerald-900/50 border border-emerald-300 dark:border-emerald-700 px-1 py-0.5 rounded shadow-sm cursor-pointer hover:bg-emerald-200 dark:hover:bg-emerald-800 transition-colors" title="当前笔记归属文件夹（点击切换）">
+                        <i class="fa-solid fa-folder text-emerald-600 dark:text-emerald-400 text-[10px]"></i>
+                        <select id="note-category-select" onchange="changeNoteCategory(this.value)" class="text-[11px] font-black text-emerald-700 dark:text-emerald-300 bg-transparent outline-none cursor-pointer w-[46px] truncate"></select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded p-0.5 shadow-inner scale-95">
+                    <button id="view-left-list" onclick="toggleLeftView('list')" class="px-1.5 py-0.5 text-[11px] rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200 transition-colors" style="background-color: #3b82f6; color: #ffffff;" title="列表视图"><i class="fa-solid fa-list-ul"></i></button>
+                    <button id="view-left-grid" onclick="toggleLeftView('grid')" class="px-1.5 py-0.5 text-[11px] rounded hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-200 transition-colors" style="background-color: transparent;" title="九宫格视图"><i class="fa-solid fa-table-cells-large"></i></button>
                 </div>
             </div>
             
             <div id="content-section-container" class="flex-1 relative min-h-0 bg-slate-50/50 dark:bg-slate-800/50 transition-all duration-200">
-                <div id="left-notes-container" class="absolute inset-0 overflow-y-scroll p-2 pb-18"></div>
+                <div id="left-notes-container" class="absolute inset-0 overflow-y-scroll p-1.5 pb-18"></div>
             </div>
         </aside>
         
@@ -178,10 +183,6 @@
                             <i class="fa-solid fa-magnifying-glass absolute left-2 text-slate-400 text-[11px]"></i>
                             <input type="text" id="global-search-input" oninput="renderLeftNotesView()" placeholder="搜索..." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-full py-1 pl-6 pr-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-all shadow-inner placeholder-slate-400">
                         </div>
-                        <div class="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 px-1.5 py-0.5 rounded shadow-sm">
-                            <i class="fa-solid fa-folder text-blue-500 text-[11px]"></i>
-                            <select id="note-category-select" onchange="changeNoteCategory(this.value)" class="text-[11px] font-black text-blue-700 dark:text-blue-300 bg-transparent outline-none cursor-pointer w-[60px] truncate"></select>
-                        </div>
                         
                         <button onclick="toggleRightPanel()" title="历史记录" class="bg-red-600 hover:bg-red-700 text-white font-black px-2 py-1 rounded text-[11px] transition-all shadow-sm flex items-center justify-center border border-red-700 whitespace-nowrap flex-shrink-0">
                             <i class="fa-solid fa-clock-rotate-left pointer-events-none"></i>
@@ -206,7 +207,11 @@
                                 <button onclick="setTheme('system'); document.getElementById('settings-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
                                     <i class="fa-solid fa-desktop text-slate-400 w-4 text-center"></i> <span data-i18n="theme-sys">系统</span>
                                 </button>
-                                </div>
+                                <div class="h-px bg-slate-100 dark:bg-slate-700 w-full my-1"></div>
+                                <button onclick="showAboutModal(); document.getElementById('settings-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 font-bold transition-colors">
+                                    <i class="fa-solid fa-circle-info text-blue-400 w-4 text-center"></i> <span data-i18n="about-soft">关于软件</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -285,13 +290,42 @@
         <button onclick="window.imgMenuAction('share')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><i class="fa-solid fa-share-nodes text-purple-500"></i> 分享</button>
     </div>
 
+    <div id="about-modal" class="hidden fixed inset-0 bg-black/50 z-[99999] flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
+            <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                <h3 class="font-black text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2"><i class="fa-solid fa-circle-info text-blue-500"></i> <span data-i18n="about-soft">关于软件</span></h3>
+                <button onclick="closeAboutModal()" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <div class="p-5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed overflow-y-auto max-h-[60vh]">
+                <p class="mb-3 font-black text-slate-800 dark:text-slate-200 text-xl">本地轻笔记 v1.0</p>
+                <p class="mb-2">这是一款纯本地、极速、安全的 PWA 笔记本软件。所有数据均保存在你的浏览器本地缓存中，绝不上传任何服务器，保护你的绝对隐私。</p>
+                <ul class="list-disc pl-5 space-y-1 mb-3">
+                    <li>支持离线使用，无网也能秒开</li>
+                    <li>支持 Markdown 和富文本排版</li>
+                    <li>支持多级文件夹拖拽排序</li>
+                    <li>自动压缩本地图片，节省空间</li>
+                </ul>
+                <p class="text-xs text-slate-400 mt-4 leading-relaxed">
+                    开发者：乐乐 <br>
+                    项目地址：<a href="https://github.com/mangguo02/my-cloud-notepad" target="_blank" class="text-blue-500 hover:underline">点击访问 GitHub 仓库</a> <br>
+                    发布日期：2026年6月
+                </p>
+            </div>
+            
+            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                <button onclick="closeAboutModal()" class="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">我知道了</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const dict = {
             zh: {
                 'theme-title': '主题模式', 'theme-light': '浅色模式', 'theme-dark': '深色模式', 'theme-sys': '跟随系统',
                 'lang-toggle': '切换语言 / EN', 'app-title': '本地轻笔记',
                 'btn-new-note': '新笔记', 'btn-new-folder': '新分类',
-                'label-folder': '文件夹', 'label-content': '笔记集', 'label-editor': '编辑栏',
+                'label-folder': '文件', 'label-content': '笔记', 'label-editor': '编辑栏',
                 'trash-title': '回收站', 'btn-list': '列表', 'btn-grid': '图表',
                 'all-docs': '全笔记展示', 'no-data': '无数据', 'trash-empty': '回收站空空如也',
                 'untitled': '无标题', 'original-folder': '原位置:',
@@ -300,7 +334,8 @@
                 'color-white': '白', 'color-red': '红', 'color-yellow': '黄', 'color-blue': '蓝', 'color-green': '绿', 'color-black': '黑',
                 'fmt-img': '图', 'btn-recover': '恢复', 'btn-empty': '清空', 'ctx-rename': '重命名分类', 'ctx-delete': '安全删除分类',
                 '未分类': '未分类', '工作': '工作', '生活': '生活',
-                'btn-import-folder': '导入文件夹', 'btn-export-folder': '导出文件夹'
+                'btn-import-folder': '导入文件夹', 'btn-export-folder': '导出文件夹',
+                'about-soft': '关于软件'
             },
             en: {
                 'theme-title': 'Theme Mode', 'theme-light': 'Light Mode', 'theme-dark': 'Dark Mode', 'theme-sys': 'System Default',
@@ -315,9 +350,13 @@
                 'color-white': 'W', 'color-red': 'R', 'color-yellow': 'Y', 'color-blue': 'B', 'color-green': 'G', 'color-black': 'Bk',
                 'fmt-img': 'Img', 'btn-recover': 'Restore', 'btn-empty': 'Empty', 'ctx-rename': 'Rename', 'ctx-delete': 'Delete safely',
                 '未分类': 'Uncategorized', '工作': 'Work', '生活': 'Life',
-                'btn-import-folder': 'Import Folder', 'btn-export-folder': 'Export Folder'
+                'btn-import-folder': 'Import Folder', 'btn-export-folder': 'Export Folder',
+                'about-soft': 'About App'
             }
         };
+
+        function showAboutModal() { document.getElementById('about-modal').classList.remove('hidden'); }
+        function closeAboutModal() { document.getElementById('about-modal').classList.add('hidden'); }
 
         let currentLang = localStorage.getItem('app-lang') || 'zh';
         function t(key) { return dict[currentLang][key] || key; }
@@ -444,10 +483,9 @@
             applyTheme(localStorage.getItem('app-theme') || 'system');
             updateLanguageUI();
             
-            // 💡 激活移动端触摸拖拽引擎
             MobileDragDrop.polyfill({
                 holdToDrag: 300, 
-                forceApply: true // 💡 强制接管底层系统拖拽权限！
+                forceApply: true 
             });
             window.addEventListener('touchmove', function(e) {
                 if (document.body.classList.contains('dnd-poly-active') && e.cancelable) {
@@ -508,6 +546,8 @@
             document.getElementById('view-left-list').style.backgroundColor = leftLayoutView === 'list' ? '#3b82f6' : 'transparent';
             document.getElementById('view-left-grid').style.backgroundColor = leftLayoutView === 'grid' ? '#3b82f6' : 'transparent';
             
+            document.getElementById('view-tree-list').style.color = treeLayoutView === 'list' ? '#ffffff' : '';
+            document.getElementById('view-tree-grid').style.color = treeLayoutView === 'grid' ? '#ffffff' : '';
             document.getElementById('view-left-list').style.color = leftLayoutView === 'list' ? '#ffffff' : '';
             document.getElementById('view-left-grid').style.color = leftLayoutView === 'grid' ? '#ffffff' : '';
 
@@ -531,7 +571,7 @@
             const defaultStyle = 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm';
 
             const allBtn = document.createElement('div');
-            allBtn.className = `px-2.5 py-0.5 rounded-lg border flex items-center gap-1 cursor-pointer transition-all text-xs font-black ${currentFilterCategory === '全部' ? activeStyle : defaultStyle}`;
+            allBtn.className = `w-full px-1.5 py-1 rounded-none border flex items-center justify-center gap-1 cursor-pointer transition-all text-xs font-black ${currentFilterCategory === '全部' ? activeStyle : defaultStyle}`;
             allBtn.innerHTML = `<i class="fa-solid fa-list-check text-[12px]"></i> ${t('all-docs')}`;
             allBtn.onclick = () => { currentFilterCategory = "全部"; refreshAllViews(); };
             if(allDocsContainer) allDocsContainer.appendChild(allBtn);
@@ -548,8 +588,8 @@
                     const noteCount = notes.filter(n => getAllCategoryIds(cat.id).includes(n.category)).length;
                     
                     const cell = document.createElement('div');
-                    cell.className = `py-1 px-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between relative h-6 folder-drop-target ${isSelected ? activeStyle : defaultStyle}`;
-                    cell.style.paddingLeft = `${level * 12 + 6}px`;
+                    cell.className = `w-full py-1 pr-1.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between relative folder-drop-target ${isSelected ? activeStyle : defaultStyle}`;
+                    cell.style.paddingLeft = `${level * 10 + 6}px`;
                     
                     let folderIconColor = 'text-amber-500';
                     if (level === 1) folderIconColor = 'text-blue-500'; else if (level === 2) folderIconColor = 'text-emerald-500'; else if (level >= 3) folderIconColor = 'text-purple-500';
@@ -567,7 +607,6 @@
                         </div>
                     `;
 
-                    // 💡 核心修复：全面抛弃 .ondrag 简写，全部改用标准的 .addEventListener()
                     cell.setAttribute('draggable', 'true');
                     
                     cell.addEventListener('dragstart', (e) => {
@@ -663,7 +702,7 @@
                 const activeBoxStyle = 'bg-blue-500 border-blue-600 text-white shadow active-note-item';
 
                 box.className = leftLayoutView === 'list' ? 
-                    `w-full py-1 px-2 rounded-lg border cursor-pointer flex flex-col justify-between transition-all text-xs break-all relative group ${isSelected ? activeBoxStyle : defaultBoxStyle}` :
+                    `w-full py-1 px-1.5 rounded-lg border cursor-pointer flex flex-col justify-between transition-all text-xs break-all relative group ${isSelected ? activeBoxStyle : defaultBoxStyle}` :
                     `w-full h-[72px] p-1.5 rounded-lg border cursor-pointer flex flex-col justify-between transition-all text-xs break-all relative group ${isSelected ? activeBoxStyle : defaultBoxStyle}`;
                     
                 box.innerHTML = `
@@ -674,7 +713,6 @@
                     </div>
                 `;
 
-                // 💡 核心修复：同样全部改用标准的 .addEventListener()
                 box.setAttribute('draggable', 'true');
                 
                 box.addEventListener('dragstart', (e) => {
@@ -827,7 +865,7 @@
             function appendOption(parentId, depth) {
                 categories.filter(c => c.parentId === parentId).forEach(cat => {
                     const opt = document.createElement('option');
-                    opt.value = cat.id; opt.innerHTML = t(cat.name); // 💡 横线已移除
+                    opt.value = cat.id; opt.innerHTML = t(cat.name);
                     select.appendChild(opt); appendOption(cat.id, depth + 1); 
                 });
             }
@@ -853,7 +891,7 @@
             const leftPanel = document.getElementById('left-panel'); const resizerLeft = document.getElementById('resizer-left');
             const rightPanel = document.getElementById('right-panel'); const resizerRight = document.getElementById('resizer-right');
             resizerLeft.addEventListener('mousedown', function(e) { e.preventDefault(); resizerLeft.classList.add('resizing'); document.body.classList.add('no-select'); document.addEventListener('mousemove', resizeLeft); document.addEventListener('mouseup', stopResizeLeft); });
-            function resizeLeft(e) { let newWidth = e.clientX - container.getBoundingClientRect().left; if (newWidth >= 130 && newWidth <= 480) leftPanel.style.width = newWidth + 'px'; }
+            function resizeLeft(e) { let newWidth = e.clientX - container.getBoundingClientRect().left; if (newWidth >= 120 && newWidth <= 480) leftPanel.style.width = newWidth + 'px'; }
             function stopResizeLeft() { resizerLeft.classList.remove('resizing'); document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeLeft); document.removeEventListener('mouseup', stopResizeLeft); }
             
             resizerRight.addEventListener('mousedown', function(e) { e.preventDefault(); resizerRight.classList.add('resizing'); document.body.classList.add('no-select'); document.addEventListener('mousemove', resizeRight); document.addEventListener('mouseup', stopResizeRight); });
@@ -898,6 +936,7 @@
         };
 
         function initRichTextInteractiveEvents() {
+               let activeImage = null; let startY = 0; let startX = 0; let startWidth = 0; let startRatio = 1;
                const editor = document.getElementById('note-editor-richtext');
                
                editor.addEventListener('click', (e) => { 
@@ -920,13 +959,19 @@
                    }
                });
 
-               let activeImage = null; let startY = 0; let startHeight = 0;
                const getClientY = (e) => { return e.touches ? e.touches[0].clientY : e.clientY; };
+               const getClientX = (e) => { return e.touches ? e.touches[0].clientX : e.clientX; };
 
                const startResize = (e) => {
                       if (e.target.tagName === 'IMG' && !e.target.closest('.locked')) {
                           if(e.touches) { e.stopPropagation(); } else { e.preventDefault(); }
-                          activeImage = e.target; startY = getClientY(e); startHeight = activeImage.clientHeight || activeImage.offsetHeight;
+                          activeImage = e.target; 
+                          startY = getClientY(e); 
+                          startX = getClientX(e); 
+                          startWidth = activeImage.clientWidth || activeImage.offsetWidth;
+                          const startHeight = activeImage.clientHeight || activeImage.offsetHeight;
+                          startRatio = startWidth / startHeight;
+
                           if (!e.touches) document.body.style.cursor = 'nwse-resize';
                           if (e.touches) { document.addEventListener('touchmove', resizeImg, { passive: false }); document.addEventListener('touchend', stopResizeImg); } 
                           else { document.addEventListener('mousemove', resizeImg); document.addEventListener('mouseup', stopResizeImg); }
@@ -938,7 +983,10 @@
                       if (activeImage) {
                           if (e.touches) { if (e.cancelable) e.preventDefault(); }
                           const dy = getClientY(e) - startY;
-                          activeImage.style.height = (startHeight + dy) + 'px'; activeImage.style.width = 'auto';
+                          const dx = getClientX(e) - startX;
+                          const deltaWidth = Math.abs(dx) > Math.abs(dy) ? dx : (dy * startRatio);
+                          activeImage.style.width = Math.max(30, startWidth + deltaWidth) + 'px'; 
+                          activeImage.style.height = 'auto'; 
                       }
                 }
 
