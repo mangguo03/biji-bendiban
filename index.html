@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -217,7 +219,7 @@
                                 
                                 <div class="h-px bg-slate-100 dark:bg-slate-700 w-full my-1"></div>
 
-                                <button onclick="toggleShortcutPanel(event)" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-between font-bold transition-colors">
+                                <button onclick="toggleShortcutPanel(event)" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-start gap-0.5 font-bold transition-colors">
                                       <div class="flex items-center gap-3">
                                             <i class="fa-solid fa-keyboard text-purple-500 w-4 text-center"></i> <span>快捷键设置</span>
                                       </div>
@@ -226,12 +228,12 @@
 
                                  <div id="shortcut-panel" class="hidden flex-col gap-1 px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-700" onclick="event.stopPropagation()">
     
-                                      <div class="flex items-center justify-between gap-1 text-xs">
+                                      <div class="flex items-center justify-start gap-0.5 text-xs">
                                             <span class="text-slate-600 dark:text-slate-300 font-bold">新建笔记</span>
                                             <input type="text" id="shortcut-new-note" readonly placeholder="点击录制" onkeydown="captureShortcut(event, 'newNote')" class="w-20 text-center text-[10px] py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded cursor-pointer outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-slate-600 dark:text-slate-300 shadow-inner transition-all placeholder-slate-400">
                                       </div>
     
-                                      <div class="flex items-center justify-between gap-1 text-xs">
+                                      <div class="flex items-center justify-start gap-0.5 text-xs">
                                             <span class="text-slate-600 dark:text-slate-300 font-bold">新建分类</span>
                                             <input type="text" id="shortcut-new-folder" readonly placeholder="点击录制" onkeydown="captureShortcut(event, 'newFolder')" class="w-20 text-center text-[10px] py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded cursor-pointer outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-slate-600 dark:text-slate-300 shadow-inner transition-all placeholder-slate-400">
                                       </div>
