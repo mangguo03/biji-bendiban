@@ -1,5 +1,5 @@
 // 每次修改了 index.html 的代码，就把这里的版本号改一下（推荐用日期）
-const CACHE_NAME = 'local-notes-2026-06-15-01'; 
+const CACHE_NAME = 'local-notes-2026-06-15-02'; 
 
 const ASSETS = [
     './',
