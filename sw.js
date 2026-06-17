@@ -1,5 +1,5 @@
 // 每次修改了 index.html 的代码，就把这里的版本号改一下（推荐用日期+序号）
-const CACHE_NAME = 'local-notes-2026-06-17-05'; 
+const CACHE_NAME = 'local-notes-2026-06-17-06'; 
 
 // 核心清单：先把最重要的骨架文件塞进缓存
 const ASSETS = [
