@@ -1,6 +1,6 @@
 {
-  "name": "轻笔记",
-  "short_name": "轻笔记",
+  "name": "轻记",
+  "short_name": "轻记",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
