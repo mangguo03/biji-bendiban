@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轻记</title>
+    <title>轻云记</title>
     
     <link rel="manifest" href="manifest.json">
     
@@ -21,8 +21,11 @@
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
     
     <style>
+        /* 💡 解决双标题栏：当作为独立桌面 PWA 运行时，自动隐藏网页内置的顶栏 */
         @media (display-mode: standalone), (display-mode: window-controls-overlay) {
-            #app-header { display: none !important; }
+            #app-header {
+                display: none !important;
+            }
         }
         body { font-size: 16px; }
         .md-preview { font-size: 16px; }
@@ -229,7 +232,6 @@
                                  </button>
 
                                  <div id="shortcut-panel" class="hidden flex-col gap-1 px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-700" onclick="event.stopPropagation()">
-    
                                       <div class="flex items-center justify-start gap-1 text-xs">
                                             <span class="text-slate-600 dark:text-slate-300 font-bold w-14" data-i18n="shortcut-new-note">新建笔记</span>
                                             <input type="text" id="shortcut-new-note" readonly placeholder="点击录制" data-i18n-placeholder="shortcut-record" onkeydown="captureShortcut(event, 'newNote')" class="w-20 text-center text-[10px] py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded cursor-pointer outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-slate-600 dark:text-slate-300 shadow-inner transition-all placeholder-slate-400">
@@ -261,8 +263,8 @@
                     </div>
                 </div>
 
-                <div id="editor-format-bar" class="px-2 py-1 flex flex-nowrap gap-2 select-none flex-shrink-0 z-10 w-full overflow-x-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
-                    <div class="flex items-center gap-1 w-max flex-nowrap pb-0.5">
+                <div class="px-2 py-1 flex flex-nowrap gap-2 select-none flex-shrink-0 z-10 w-full overflow-x-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
+                    <div id="editor-format-bar" class="flex items-center gap-1 w-max flex-nowrap pb-0.5">
                         <select onchange="if(this.value){execCmd('fontSize', this.value);}" class="w-[80px] px-1.5 py-0.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded border border-slate-200 dark:border-slate-600 outline-none cursor-pointer bg-slate-50 dark:bg-slate-700">
                             <option value="" data-i18n="fmt-size">字号</option>
                             <option value="1" data-i18n="sz-1">1号 (10px)</option>
@@ -295,10 +297,10 @@
                         <div class="h-4 w-[1px] bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
                         <button onmousedown="event.preventDefault();" onclick="wrapHTML('<code>', '</code>')" class="px-2 py-0.5 text-[11px] font-mono text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded border border-slate-200 dark:border-slate-600" title="代码块"><i class="fa-solid fa-code"></i></button>
                         <button onmousedown="event.preventDefault();" onclick="clearAllFormat()" class="px-2 py-0.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 rounded border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700" title="清除格式"><i class="fa-solid fa-eraser"></i></button>
-                        <button onmousedown="event.preventDefault(); document.getElementById('local-img-input').click()" class="px-2 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700 rounded border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-slate-700"><span data-i18n="fmt-img">图</span></button>
+                       <button onmousedown="event.preventDefault(); document.getElementById('local-img-input').click()" class="px-2 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700 rounded border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-slate-700"><span data-i18n="fmt-img">图</span></button>
                         <div class="h-4 w-[1px] bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
                         
-                            <div class="relative flex-shrink-0">
+                        <div class="relative flex-shrink-0">
                             <button onclick="toggleAlignMenu(event)" title="对齐方式" class="px-2 py-0.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded border border-slate-200 dark:border-slate-600 flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-align-left pointer-events-none"></i>
                                 <i class="fa-solid fa-chevron-down text-[8px] opacity-70 pointer-events-none"></i>
@@ -365,12 +367,12 @@
             
             <div class="p-5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed overflow-y-auto max-h-[60vh]">
                 <p class="mb-3 font-black text-slate-800 dark:text-slate-200 text-xl">本地轻笔记 v1.0</p>
-                <p class="mb-2">这是一款纯本地、极速、安全的 PWA 笔记本软件。所有数据均保存在你的浏览器本地缓存中，绝不上传任何服务器。</p>
+                <p class="mb-2">这是一款纯本地、极速、安全的 PWA 笔记本软件。所有数据均保存在你的浏览器本地缓存中，绝不上传任何服务器，保护你的绝对隐私。</p>
                 <ul class="list-disc pl-5 space-y-1 mb-3">
                     <li>支持离线使用，无网也能秒开</li>
                     <li>支持 Markdown 和富文本排版</li>
-                    <li>支持多级文件夹导入、导出</li>
-                    <li>支持丰富的图片管理功能</li>
+                    <li>支持多级文件夹拖拽排序</li>
+                    <li>自动压缩本地图片，节省空间</li>
                 </ul>
                 <p class="text-xs text-slate-400 mt-4 leading-relaxed">
                     开发者：乐乐 <br>
@@ -461,14 +463,12 @@
 
         function toggleAlignMenu(e) {
             e.stopPropagation();
-            // 点击对齐菜单时，顺手关掉其他可能开着的菜单
             document.getElementById('settings-dropdown').classList.add('hidden');
             const ieContent = document.getElementById('import-export-content');
             if(ieContent) ieContent.classList.add('hidden');
 
             const alignMenu = document.getElementById('align-dropdown-menu');
             if (alignMenu.classList.contains('hidden')) {
-                // 🪄 核心魔法：获取按钮在屏幕上的真实坐标，把菜单精准地贴在下方
                 const rect = e.currentTarget.getBoundingClientRect();
                 alignMenu.style.top = (rect.bottom + 4) + 'px';
                 alignMenu.style.left = rect.left + 'px';
@@ -881,7 +881,6 @@
                 e.preventDefault();
                 
                 // 🛑 核心防冲突：如果你的鼠标其实已经悬停在某个笔记上方了，就退出，让笔记盒子自己的代码去处理
-                // (.group 是每个笔记盒子自带的类名)
                 if (e.target.closest('.group')) return; 
 
                 // 如果确实落在了空白处，把它移到列表末尾
@@ -1206,8 +1205,8 @@
                                hasImage = true; const reader = new FileReader();
                                reader.onload = (event) => {
                                    const base64Image = event.target.result;
-                                   // 🚨 同样在开头加上 &#8203;
-const imgHTML = `&#8203;<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${base64Image}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
+                                   // 🚨 修复二：插入图片前增加 &#8203; 零宽字符，解决光标无法移到图片前的问题
+                                   const imgHTML = `&#8203;<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${base64Image}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
                                    execCmd('insertHTML', imgHTML);
                                };
                                reader.readAsDataURL(items[i].getAsFile());
@@ -1242,7 +1241,7 @@ const imgHTML = `&#8203;<span class="custom-img-wrapper locked" contenteditable=
                         return; // 处理完回车就退出，不再往下走
                     }
 
-                    // 🪄 修复二：处理【空格键】——触发 Markdown 语法
+                    // 🪄 处理【空格键】——触发 Markdown 语法
                     if (e.key === ' ' || e.code === 'Space') {
                         if (node.nodeType === 3) {
                             const text = node.textContent;
@@ -1276,23 +1275,18 @@ const imgHTML = `&#8203;<span class="custom-img-wrapper locked" contenteditable=
      
         function insertHyperlink() { const url = prompt("请输入超级链接地址:", "https://"); if (url) execCmd('createLink', url); }
         function execCmd(command, value = null) { document.execCommand(command, false, value); handleEditorInput(); }
-        // 🌟 终极“格式粉碎机”：彻底清除颜色、加粗、标题等所有格式
+        
+        // 🌟 终极“格式粉碎机”
         function clearAllFormat() {
                const selection = window.getSelection();
                if (!selection.rangeCount) return;
 
-               // 1. 清除颜色、加粗、斜体等所有“内联格式”
                document.execCommand('removeFormat', false, null);
-    
-               // 2. 清除 Markdown 生成的标题 (H1~H3)、列表等“块级格式”，强行打回普通正文
-              document.execCommand('formatBlock', false, '<div>');
-    
-              // 3. 剥离可能残留的背景色干扰
-              document.execCommand('backColor', false, 'transparent');
-    
-              // 触发保存逻辑
-              handleEditorInput();
+               document.execCommand('formatBlock', false, '<div>');
+               document.execCommand('backColor', false, 'transparent');
+               handleEditorInput();
         }
+
         function wrapHTML(startTag, endTag) { const selection = window.getSelection(); if (!selection.rangeCount) return; execCmd('insertHTML', startTag + selection.toString() + endTag); }
         function triggerImport(type) { if (type === 'md') document.getElementById('import-md-input').click(); if (type === 'txt') document.getElementById('import-txt-input').click(); }
         function triggerFolderImport() { document.getElementById('import-folder-input').click(); }
@@ -1396,8 +1390,8 @@ const imgHTML = `&#8203;<span class="custom-img-wrapper locked" contenteditable=
                         ctx.drawImage(img, 0, 0, width, height);
 
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.9);
-
-                        // 🚨 注意开头加了 &#8203; 给光标留个落脚点
+                        
+                        // 🚨 修复二：插入图片前增加 &#8203; 零宽字符，解决光标无法移到图片前的问题
                         const imgHTML = `&#8203;<span class="custom-img-wrapper locked" contenteditable="false" draggable="true" ondragstart="window.imgDragStart(event)" ondragend="window.imgDragEnd(event)"><img src="${compressedBase64}" alt="图片" /><span class="img-lock-btn locked" title="点击解锁以调整大小" contenteditable="false"><i class="fa-solid fa-lock"></i></span></span>&nbsp;`;
                         execCmd('insertHTML', imgHTML);
                     };
