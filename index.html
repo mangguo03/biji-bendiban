@@ -92,11 +92,11 @@
     
     <div id="auth-overlay" class="fixed inset-0 bg-slate-900 z-[9999] flex items-center justify-center transition-opacity" style="-webkit-app-region: no-drag;">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-96 flex flex-col gap-4">
-            <h2 class="text-2xl font-black mb-2 text-center text-slate-800" id="auth-title">登入工作台</h2>
+            <h2 class="text-2xl font-black mb-2 text-center text-slate-800" id="auth-title">账号登录</h2>
             <div id="auth-error" class="hidden bg-red-100 text-red-600 p-2 rounded text-sm font-bold text-center"></div>
             <input type="text" id="auth-username" placeholder="请输入账号" class="w-full border-2 border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold text-slate-700">
             <input type="password" id="auth-password" placeholder="请输入密码" class="w-full border-2 border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold text-slate-700">
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow-md mt-2">登入</button>
+            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow-md mt-2">立即登录</button>
             <div class="text-center text-sm font-bold text-slate-500 cursor-pointer hover:text-blue-600 mt-2" onclick="toggleAuthMode()" id="auth-toggle">没有账号？点击注册新账号</div>
         </div>
     </div>
@@ -602,9 +602,10 @@
         
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? '注册本地工作台' : '账号登录';
-            document.getElementById('auth-btn').innerText = isLoginMode ? '注册并进入' : '立即登录';
-            document.getElementById('auth-toggle').innerText = isLoginMode ? '已有账号？点击返回登录' : '没有账号？点击注册新账号';
+            // 🚨 核心修复：把问号前后的文字对调，让 true=登录，false=注册
+            document.getElementById('auth-title').innerText = isLoginMode ? '账号登录' : '注册本地工作台';
+            document.getElementById('auth-btn').innerText = isLoginMode ? '立即登录' : '注册并进入';
+            document.getElementById('auth-toggle').innerText = isLoginMode ? '没有账号？点击注册新账号' : '已有账号？点击返回登录';
             document.getElementById('auth-error').classList.add('hidden');
         }
         
@@ -645,7 +646,8 @@
                 errDiv.innerText = "本地存储错误，请检查浏览器权限。";
                 errDiv.classList.remove('hidden');
             }
-            document.getElementById('auth-btn').innerText = isLoginMode ? '登录' : '注册并进入';
+            // 🚨 修复：防止网络卡顿恢复时按钮文字错乱
+            document.getElementById('auth-btn').innerText = isLoginMode ? '立即登录' : '注册并进入';
         }
 
         async function deleteAccount() {
